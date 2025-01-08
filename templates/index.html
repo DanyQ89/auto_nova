@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+
+    <link rel="stylesheet" href="../../static/css/style.css">
+    {% extends "base.html" %}
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+    {% block content %}
+
+  <div id="menu" class="menu">
+    <a href="./contacts">Контакты</a>
+    <a href="./guarantees">Гарантии</a>
+    <a href="#" onclick="toggleMenu()">Закрыть меню</a>
+  </div>
+
+
+    <div class="content">
+        <h1>Добро пожаловать в наш магазин автомобильных запчастей!</h1>
+        <p>Здесь вы найдете все необходимые запчасти для вашего автомобиля.</p>
+        <!-- Добавьте здесь больше контента, например, товары, категории и т.д. -->
+    </div>
+
+    {% endblock %}
+
+</body>
+</html>

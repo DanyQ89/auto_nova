@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="stylesheet" href="../../static/css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoNova.ru</title>
+</head>
+<body>
+
+<header>
+    <div class="hamburger" onclick="toggleMenu()">
+        &#9776; <!-- Символ гамбургера -->
+    </div>
+    <a href="./" class="title">AutoNova</a>
+    <div class="buttons">
+        <a href="#" class="button">Войти</a>
+        <a href="#" class="button">Зарегистрироваться</a>
+    </div>
+</header>
+
+<main role="main" class="container">
+    {% block content %}
+    {% endblock %}
+</main>
+
+<script>
+    function toggleMenu() {
+        const menu = document.getElementById('menu');
+        menu.classList.toggle('active');
+    }
+</script>
+
+
+</body>
+</html>
