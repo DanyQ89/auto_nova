@@ -14,23 +14,26 @@
     </div>
     <a href="./" class="title">AutoNova</a>
     <div class="buttons">
-        <a href="#" class="button">Войти</a>
-        <a href="#" class="button">Зарегистрироваться</a>
+        {% if current_user.is_authenticated %}
+        <a href="./edit_profile" class="text-profile"><img src="./static/img/image-profile.png" class="png-profile"> {{current_user.name}}</a>
+        {% else %}
+        <a href="./register" class="button">Зарегистрироваться</a>
+        <a href="./login" class="button">Войти</a>
+        {% endif %}
     </div>
 </header>
+
+
 
 <main role="main" class="container">
     {% block content %}
     {% endblock %}
 </main>
 
-<script>
-    function toggleMenu() {
-        const menu = document.getElementById('menu');
-        menu.classList.toggle('active');
-    }
-</script>
 
+
+
+<script src="./static/js/scripts.js"></script>
 
 </body>
 </html>
