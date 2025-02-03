@@ -38,7 +38,7 @@
 
         <div>
             {{ form.phone.label }}<br>
-            {{ form.phone(size=32) }}<br>
+            {{ form.phone(size=32, readonly=True, class="readonly") }}<br>
             {% for error in form.phone.errors %}
                 <span style="color: red;">[{{ error }}]</span>
             {% endfor %}

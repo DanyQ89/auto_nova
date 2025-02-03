@@ -12,7 +12,7 @@ class RegisterUser(FlaskForm):
 
 
 class LoginUser(FlaskForm):
-    phone = StringField('Номер', validators=[DataRequired()])
+    phone = StringField('Номер телефона', validators=[DataRequired()])
     password = StringField('Пароль', validators=[DataRequired()])
     submit = SubmitField('Сохранить')
 

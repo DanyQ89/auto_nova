@@ -13,6 +13,9 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
     phone = Column(String, unique=True)
-    address = Column(String) #адрес доставки
+    address = Column(String)  # адрес доставки
     password = Column(String)
     modified_date = Column(DateTime, default=datetime.datetime.now())
+
+class Detail(SqlAlchemyBase, SerializerMixin):
+    __tablename__ = 'details'

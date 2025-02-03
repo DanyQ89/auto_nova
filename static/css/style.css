@@ -203,3 +203,8 @@ button.submit-button:active {
     object-fit: cover; /* Обеспечиваем обрезку изображения по размеру */
 }
 
+.readonly {
+    background: repeating-linear-gradient(45deg, #d3d3d3 10%, #a9a9a9 15%);
+
+    cursor: not-allowed;
+}
