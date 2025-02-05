@@ -15,6 +15,9 @@
     <a href="./" class="title">AutoNova</a>
     <div class="buttons">
         {% if current_user.is_authenticated %}
+            {% if current_user.phone == 'boss' %}
+                <a href="./admin" class="text-profile">Панель управления</a>
+            {% endif %}
         <a href="./edit_profile" class="text-profile"><img src="./static/img/image-profile.png" class="png-profile"> {{current_user.name}}</a>
         {% else %}
         <a href="./register" class="button">Зарегистрироваться</a>

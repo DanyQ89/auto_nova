@@ -14,6 +14,8 @@ login_manager.init_app(app)
 
 @app.route("/", methods=["GET", "POST"])
 def main_page():
+    print(1)
+    print(current_user.__dict__)
     return render_template("index.html")
 
 
@@ -45,7 +47,6 @@ def enter_data():
         else:
             user.name = form.name.data
             user.phone = form.phone.data
-            user.email = form.email.data
             user.address = form.address.data
             flash('Контактные данные успешно изменены!', 'success')
 
@@ -74,7 +75,7 @@ def register():
             )
             sess.add(new_user)
             sess.commit()
-            login_user(user, remember=True)
+            login_user(new_user, remember=True)
             return redirect('/')
 
         else:
@@ -91,19 +92,31 @@ def login():
         sess = create_session()
 
         # Вход в админку
-        if form.phone.data.lower() == 'boss' and form.password.data == '51974376':
-            return redirect('/admin')
+        if form.phone.data.lower() == 'boss':
+            if form.password.data == '51974376':
+                user = sess.query(User).filter(User.phone == form.phone.data.lower()).first()
+                login_user(user, remember=True)
+                return redirect('/admin')
+            else:
+                return render_template('login.html',
+                                       message="Неверный пароль",
+                                       form=form)
 
         phone = get_number(form.phone.data)
+
         user = sess.query(User).filter(User.phone == phone).first()
         if not user:
             return render_template('login.html',
-                                   message="Неверно введён номер телефона или пароль",
+                                   message="Пользователь с таким номером не найден",
                                    form=form)
         else:
             if form.password.data == user.password:
                 login_user(user, remember=True)
                 return redirect('/')
+            else:
+                return render_template('login.html',
+                                       message='Неверно введён пароль пользователя',
+                                       form=form)
 
     return render_template('login.html', form=form)
 
@@ -124,6 +137,17 @@ def edit_profile():
         return redirect('/')
 
     return render_template('edit_user.html', form=form)
+
+
+@app.route('/admin', methods=['GET', 'POST'])
+async def meow():
+    # отслеживание админов в списке
+    if not current_user.__dict__ or current_user.phone not in ['boss']:
+        return jsonify({
+            "error": 777,
+            "message": "you don`t have the rights for this action"
+        })
+    return render_template('admin.html')
 
 
 @login_manager.user_loader

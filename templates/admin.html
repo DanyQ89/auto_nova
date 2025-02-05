@@ -1,10 +1,138 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление деталями</title>
+    <link rel="stylesheet" href="../static/css/admin.css">
+    {% extends "base.html" %}
 </head>
+
+
 <body>
+
+    {% block content %}
+    <div class="admin-container">
+        <header class="admin-header">
+            <h1>Управление деталями</h1>
+            <button id="addDetailBtn" class="admin-button">Добавить деталь</button>
+        </header>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>Цена</th>
+                    <th>Цена со скидкой</th>
+                    <th>Дата добавления</th>
+                    <th>Комментарий</th>
+                    <th>Состояние</th>
+                    <th>Цвет</th>
+                    <th>Фото</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for detail in details %}
+                <tr ondblclick="editDetail({{ detail.id }})">
+                    <td>{{ detail.id }}</td>
+                    <td>{{ detail.name }}</td>
+                    <td>{{ detail.price }}</td>
+                    <td>{{ detail.price_w_discount }}</td>
+                    <td>{{ detail.data_created }}</td>
+                    <td>{{ detail.comment }}</td>
+                    <td>{{ detail.condition }}</td>
+                    <td>{{ detail.color }}</td>
+                    <td>
+                        {% if detail.photo %}
+                            <img src="data:image/png;base64,{{ detail.photo }}" alt="Фото" class="detail-photo">
+                        {% else %}
+                            Нет фото
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Модальное окно для добавления/редактирования детали -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Добавить деталь</h2>
+            <form id="detailForm" method="POST" enctype="multipart/form-data" class="modal-form">
+                <input type="hidden" name="id" id="detailId">
+                <label for="name">Название:</label>
+                <input type="text" name="name" id="name" required>
+                <label for="price">Цена:</label>
+                <input type="text" name="price" id="price" required>
+                <label for="price_w_discount">Цена со скидкой:</label>
+                <input type="text" name="price_w_discount" id="price_w_discount">
+                <label for="data_created">Дата добавления:</label>
+                <input type="date" name="data_created" id="data_created" required>
+                <label for="comment">Комментарий:</label>
+                <input type="text" name="comment" id="comment">
+                <label for="condition">Состояние:</label>
+                <input type="text" name="condition" id="condition">
+                <label for="color">Цвет:</label>
+                <input type="text" name="color" id="color">
+                <label for="photo">Фото:</label>
+                <input type="file" name="photo" id="photo" accept="image/*">
+                <button type="submit" class="submit-button">Сохранить</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('addDetailBtn').onclick = function() {
+            openModal('add');
+        };
+
+        function openModal(action, detail = {}) {
+            const modal = document.getElementById('detailModal');
+            const title = document.getElementById('modalTitle');
+            const detailId = document.getElementById('detailId');
+            const nameInput = document.getElementById('name');
+            const priceInput = document.getElementById('price');
+            const priceWDiscountInput = document.getElementById('price_w_discount');
+            const dateInput = document.getElementById('data_created');
+            const commentInput = document.getElementById('comment');
+            const conditionInput = document.getElementById('condition');
+            const colorInput = document.getElementById('color');
+            const photoInput = document.getElementById('photo');
+
+            if (action === 'edit') {
+                title.textContent = 'Редактировать деталь';
+                detailId.value = detail.id;
+                nameInput.value = detail.name;
+                priceInput.value = detail.price;
+                priceWDiscountInput.value = detail.price_w_discount;
+                dateInput.value = detail.data_created;
+                commentInput.value = detail.comment;
+                conditionInput.value = detail.condition;
+                colorInput.value = detail.color;
+            } else {
+                title.textContent = 'Добавить деталь';
+                detailId.value = '';
+                nameInput.value = '';
+                priceInput.value = '';
+                priceWDiscountInput.value = '';
+                dateInput.value = '';
+                commentInput.value = '';
+                conditionInput.value = '';
+                colorInput.value = '';
+                photoInput.value = '';
+            }
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+    </script>
+
+    <script src="./static/js/scripts.js"></script>
+    {% endblock %}
 
 </body>
 </html>

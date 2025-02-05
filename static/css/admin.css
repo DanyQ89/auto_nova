@@ -1,0 +1,91 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: white;
+    color: black;
+    margin: 0;
+    padding: 20px;
+}
+
+.admin-container {
+    width: 100%; /* Устанавливаем ширину контейнера на 100% */
+    margin: auto;
+}
+
+.admin-header {
+    width: 100%; /* Устанавливаем ширину заголовка на 100% */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    background-color: #f0f0f0; /* Добавляем фон для заголовка */
+    padding: 10px; /* Добавляем отступы для заголовка */
+}
+
+.admin-button {
+    background-color: black;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+.admin-table {
+    width: 100%; /* Устанавливаем ширину таблицы на 100% */
+    table-layout: auto; /* Автоматическая ширина столбцов */
+    border-collapse: collapse; /* Убираем двойные границы */
+}
+
+.admin-table th, .admin-table td {
+    border: 1px solid #ddd; /* Граница для ячеек */
+    padding: 8px; /* Отступы для ячеек */
+    text-align: left; /* Выравнивание текста в ячейках */
+}
+
+.admin-table th {
+    background-color: #f0f0f0; /* Фон для заголовков таблицы */
+}
+
+.detail-photo {
+    width: 50px; /* Ширина фото */
+    height: auto; /* Автоматическая высота */
+}
+
+.modal {
+    display: none; /* Скрыто по умолчанию */
+    position: fixed; /* Фиксированное положение */
+    z-index: 1; /* Сверху */
+    left: 0;
+    top: 0;
+    width: 100%; /* Полная ширина */
+    height: 100%; /* Полная высота */
+    overflow: auto; /* Прокрутка, если необходимо */
+    background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный фон */
+}
+
+.modal-content {
+    background-color: white; /* Фон модального окна */
+    margin: 15% auto; /* Центрирование */
+    padding: 20px; /* Отступы */
+    border: 1px solid black; /* Граница */
+    width: 80%; /* Ширина модального окна */
+}
+
+.close {
+    color: black; /* Цвет для кнопки закрытия */
+    float: right; /* Выравнивание вправо */
+    font-size: 28px; /* Размер шрифта */
+    font-weight: bold; /* Жирный текст */
+}
+
+.close:hover,
+.close:focus {
+    color: red; /* Цвет при наведении */
+    cursor: pointer; /* Указатель при наведении */
+}
+
+/* Адаптивные стили */
+@media (max-width: 1000px) {
+    .admin-table th, .admin-table td {
+        font-size: 14px; /* Уменьшаем размер шрифта для маленьких экранов */
+    }
+}

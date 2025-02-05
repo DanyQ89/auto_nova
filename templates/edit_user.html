@@ -7,21 +7,16 @@
     <link rel="stylesheet" href="../../static/css/style.css">
 </head>
 <body>
-<div id="menu" class="menu">
-<a href="./contacts">Контакты</a>
-<a href="./guarantees">Гарантии</a>
-<a href="#" onclick="toggleMenu()">Закрыть меню</a>
-</div>
+
 <header>
-    <div class="hamburger" onclick="toggleMenu()">
-        &#9776; <!-- Символ гамбургера -->
+    <div class="buttons">
+        <a href="./" class="text-profile" style="border: white solid 2px">На главную</a>
     </div>
-    <a href="./" class="title">AutoNova - личный профиль</a>
+    <a href="./" class="title">AutoNova - Личный кабинет</a>
     <div class="buttons">
         <a href="./logout" class="text-profile" style="border: white solid 2px"> Выйти </a>
     </div>
 </header>
-
 
 <main role="main" class="container">
     <form method="POST" action="/edit_profile">
@@ -70,6 +65,6 @@
     </form>
 
 </main>
-
+<script src="./static/js/scripts.js"></script>
 </body>
 </html>
