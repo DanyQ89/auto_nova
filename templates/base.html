@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../static/css/style.css">
+    {% block styles %}
+    {% endblock %}
+
+    <title>AutoNova.ru</title>
+</head>
+<body>
+
+<header>
+    <div class="hamburger" onclick="toggleMenu()">
+        &#9776; <!-- Символ гамбургера -->
+    </div>
+    <a href="./" class="title">AutoNova</a>
+    <div class="buttons">
+        {% if current_user.is_authenticated %}
+            {% if current_user.phone == 'boss' %}
+                <a href="./admin" class="text-profile">Панель управления</a>
+            {% endif %}
+        <a href="./edit_profile" class="text-profile"><img src="./static/img/image-profile.png" class="png-profile"> {{current_user.name}}</a>
+        {% else %}
+        <a href="./register" class="button">Зарегистрироваться</a>
+        <a href="./login" class="button">Войти</a>
+        {% endif %}
+    </div>
+</header>
+
+<main role="main" class="container">
+    {% block content %}
+    {% endblock %}
+</main>
+
+
+
+
+<script src="./static/js/scripts.js"></script>
+
+</body>
+</html>

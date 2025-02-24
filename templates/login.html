@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход</title>
+    <link rel="stylesheet" href="../../static/css/style.css">
+</head>
+<body>
+
+
+<header>
+
+    <div class="buttons">
+        <a href="./" class="text-profile" style="border: white solid 2px">На главную</a>
+    </div>
+
+    <a href="./" class="title">AutoNova - Вход</a>
+
+    <div class="buttons">
+        <a href="./register" class="button">Зарегистрироваться</a>
+        <a href="./login" class="button">Войти</a>
+    </div>
+
+
+
+</header>
+
+
+<main role="main" class="container">
+    <form method="POST" action="/login">
+<!-- Укажите правильный маршрут для обработки формы -->
+        {{ form.hidden_tag() }}
+        <div>
+            {{ form.phone.label }}<br>
+            {{ form.phone(size=32) }}<br>
+            {% for error in form.phone.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </div>
+        <div>
+            {{ form.password.label }}<br>
+            {{ form.password(size=32) }}<br>
+            {% for error in form.password.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </div>
+        {% if message %}
+        <div class="error-message">
+            {{ message }}
+        </div>
+        {% endif %}
+        <div>
+            <button type="submit" class="submit-button">Сохранить</button>
+        </div>
+        <p>Нет акккаунта? <a href="/register">Зарегистрироваться</a></p>
+    </form>
+
+</main>
+<script src="./static/js/scripts.js"></script>
+
+</body>
+</html>

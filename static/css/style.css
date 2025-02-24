@@ -1,0 +1,257 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    background-color: #000000;
+    padding: 10px 20px;
+    color: white;
+}
+
+.menu {
+    position: fixed;
+    top: 52px;
+    left: -100%; /* Скрыть за пределами экрана */
+    width: 250px; /* Фиксированная ширина для меню */
+    height: calc(100% - 52px); /* Высота меню с учетом высоты заголовка */
+    background-color: white;
+    border: 1px solid #000; /* Исправлено на #000 вместо #black */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+    transition: left 250ms ease;
+}
+
+.menu.active {
+    left: 0; /* Показываем меню */
+}
+
+.menu a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #333;
+}
+
+.menu a:hover {
+    background-color: #A9A9A9;
+}
+
+.hamburger {
+    cursor: pointer;
+    font-size: 30px;
+}
+
+.buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.button {
+    background-color: #fff;
+    color: black;
+    border: 1px solid #fff; /* Исправлено на #fff вместо #white */
+    padding: 10px 10px;
+    margin: 5px 2px 5px 0px;
+    text-decoration: none;
+    border-radius: 6px;
+}
+
+.button:hover {
+    border: 1px solid black;
+    background-color: #A9A9A9;
+    color: white;
+}
+
+.content {
+    padding: 20px;
+}
+
+.title {
+    color: white;
+    font-size: 24px;
+    text-decoration: none;
+}
+
+ul {
+    margin: 10px 0;
+    padding-left: 20px; /* Отступ для списка */
+}
+
+p {
+    line-height: 1.6; /* Интервал между строками */
+}
+
+.contact-info {
+    margin: 20px 0;
+}
+
+
+
+/* Медиа-запросы для улучшения адаптивности */
+@media (max-width: 768px) {
+    .menu {
+        width: 70%; /* Ширина меню для мобильных устройств */
+    }
+
+    .modal-content {
+        width: 95%; /* Ширина модального окна для мобильных устройств */
+    }
+
+    header {
+        flex-direction: column; /* Вертикальное расположение элементов в заголовке */
+        align-items: flex-start; /* Выравнивание по левому краю */
+    }
+}
+
+form {
+    background-color: #f9f9f9; /* Светлый фон */
+    padding: 20px; /* Отступы вокруг формы */
+    border-radius: 10px; /* Закругленные углы */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Тень для глубины */
+    margin: 20px auto; /* Отступы сверху и снизу, автоматическое выравнивание по центру */
+    max-width: 400px; /* Максимальная ширина формы */
+}
+
+.error {
+    color: red; /* Красный цвет для ошибок */
+    font-size: 0.9em; /* Немного меньший шрифт */
+    margin-top: 5px; /* Отступ сверху для сообщения об ошибке */
+}
+
+label {
+    font-weight: bold; /* Жирный текст */
+    margin-bottom: 5px; /* Отступ снизу для метки */
+    display: block; /* Блочное отображение для правильного расстояния */
+}
+
+input[type="text"], input[type="email"], input[type="password"] {
+    width: calc(100% - 30px); /* Полная ширина минус отступы */
+    padding: 10px; /* Отступы для удобства */
+    margin: 10px 0; /* Отступы между полями */
+    border: 1px solid #ccc; /* Светлая граница */
+    border-radius: 5px; /* Закругленные углы */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Легкая тень */
+    transition: border-color 0.3s; /* Плавный переход для цвета границы */
+}
+
+input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
+    border-color: #333; /* Темно-серый цвет границы при фокусе */
+    box-shadow: 0 0 5px rgba(51, 51, 51, 0.5); /* Тень при фокусе */
+}
+
+button.submit-button {
+    background-color: #333; /* Темно-серый цвет для кнопки */
+    color: white; /* Белый цвет текста */
+    border: none; /* Убираем границу */
+    padding: 12px 20px; /* Увеличиваем отступы для большей кнопки */
+    border-radius: 5px; /* Закругленные углы */
+    font-size: 16px; /* Увеличиваем размер шрифта */
+    cursor: pointer; /* Указатель при наведении */
+    transition: background-color 0.3s, transform 0.2s; /* Плавный переход для фона и эффекта нажатия */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень для глубины */
+}
+
+button.submit-button:hover {
+    background-color: #555; /* Светло-серый цвет при наведении */
+    transform: translateY(-2px); /* Поднимаем кнопку при наведении */
+}
+
+button.submit-button:active {
+    background-color: #222; /* Еще более темный цвет при нажатии */
+    transform: translateY(0); /* Возвращаем кнопку на место */
+}
+
+.error-message {
+    color: black; /* Красный цвет для текста ошибки */
+    font-weight: bold;
+    background-color: #ffe6e6; /* Светло-красный фон для выделения */
+    border: 1px solid red; /* Красная граница */
+    padding: 10px; /* Отступы вокруг текста */
+    border-radius: 5px; /* Закругленные углы */
+    margin: 10px 0; /* Отступы сверху и снизу */
+    font-size: 0.9em; /* Немного меньший шрифт */
+    text-align: center; /* Центрирование текста */
+}
+
+.text-profile {
+    display: flex; /* Используем flexbox для выравнивания */
+    align-items: center; /* Центрируем элементы по вертикали */
+    text-decoration: none; /* Убираем подчеркивание */
+    color: white; /* Цвет текста */
+    font-weight: bold;
+    padding: 10px; /* Отступы вокруг ссылки */
+    border-radius: 5px; /* Закругленные углы */
+    transition: background-color 0.3s, color 0.3s; /* Плавный переход для фона и цвета текста */
+}
+
+.text-profile:hover {
+    background-color: #333; /* Светло-серый фон при наведении */
+    color: white; /* Темный цвет текста при наведении */
+}
+
+.png-profile {
+    width: 40px; /* Ширина изображения */
+    height: 40px; /* Высота изображения */
+    border-radius: 50%; /* Круглая форма изображения */
+    margin-right: 10px; /* Отступ справа от изображения */
+    object-fit: cover; /* Обеспечиваем обрезку изображения по размеру */
+}
+
+.readonly {
+    background: repeating-linear-gradient(45deg, #d3d3d3 10%, #a9a9a9 15%);
+
+    cursor: not-allowed;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+.button {
+    background-color: #4CAF50; /* Зеленый */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: #45a049;
+}
+
+.logo-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.logo {
+    width: 100px; /* Ширина логотипа */
+    height: auto; /* Автоматическая высота для сохранения пропорций */
+    margin: 10px; /* Отступы между логотипами */
+    transition: transform 0.2s; /* Плавный эффект при наведении */
+}
+
+.logo:hover {
+    transform: scale(1.1); /* Увеличение логотипа при наведении */
+}
+
+

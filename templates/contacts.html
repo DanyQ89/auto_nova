@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link href="../../static/css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% extends "base.html" %}
+    <title>Контакты - Магазин автомобильных запчастей</title>
+
+</head>
+<body>
+
+{% block content %}
+
+  <div id="menu" class="menu">
+    <a href="./">На главную</a>
+    <a href="./guarantees">Гарантии</a>
+    <a href="./basket">Корзина</a>
+    <a href="#" onclick="toggleMenu()">Закрыть меню</a>
+  </div>
+
+<div class="content">
+    <h1>Адреса и телефоны магазинов</h1>
+
+    <div class="contact-info">
+        <h2>Магазин запчастей для иномарок:</h2>
+        <p><strong>Телефон:</strong> (+7) 953-171-61-46</p>
+        <p><strong>Адрес:</strong> офис СПБ, Руставели, дом 19</p>
+        <h3>Режим работы:</h3>
+        <p>ПН-ПТ: с 10 до 18 ч.</p>
+        <p>СБ-ВС: По предварительному звонку</p>
+    </div>
+</div>
+
+{% endblock %}
+
+</body>
+</html>
