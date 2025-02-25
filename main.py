@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import Flask, render_template, make_response, jsonify, flash, redirect, request
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 from utils.config import secret_key
@@ -34,9 +36,34 @@ def get_thing_by_number():
     return render_template("get_thing_by_number.html")
 
 
+@app.route('/update_detail/<int:detail_id>', methods=['GET'])
+def update_detail(detail_id):
+    session = create_session()
+    print("update detail with ID:", detail_id)
+    detail = session.query(Detail).filter(Detail.id==detail_id).first()
+    if detail:
+        return jsonify({
+            'id': detail.id,
+            'sklad': detail.sklad,
+            'ID_detail': detail.ID_detail,
+            'brand': detail.brand,
+            'model_and_year': detail.model_and_year,
+            'name': detail.name,
+            'price': detail.price,
+            'price_w_discount': detail.price_w_discount,
+            'comment': detail.comment,
+            'orig_number': detail.orig_number,
+            'condition': detail.condition,
+            'percent': detail.percent,
+            'CpK': detail.CpK,
+            'color': detail.color,
+            'data_created': detail.data_created.strftime('%Y-%m-%d')
+        })
+    return jsonify({'error': 'Detail not found'}), 404
+
+
 @app.route('/add_detail', methods=['POST'])
 def add_detail():
-    # Получаем данные из формы
     new_detail = Detail(
         creator_id=request.form['creator_id'],  # Поле для идентификатора создателя
         sklad=request.form['sklad'],  # Поле для склада
@@ -65,8 +92,6 @@ def add_detail():
     session.commit()
 
     return redirect('/admin')
-
-
 
 @app.route("/remove_from_basket/<string:detail_id>", methods=["POST"])
 @login_required

@@ -109,7 +109,7 @@
                 <label for="photo">Фото:</label>
                 <input type="file" name="photo" id="photo" accept="image/*">
 
-                <button type="submit" class="submit-button">Сохранить</button>
+                <button type="submit" class="submit-button" id="submitButton">Сохранить</button> <!-- Изменено на submitButton -->
             </form>
         </div>
     </div>
@@ -128,31 +128,53 @@
             const priceWDiscountInput = document.getElementById('price_w_discount');
             const dateInput = document.getElementById('data_created');
             const commentInput = document.getElementById('comment');
+            const origNumberInput = document.getElementById('orig_number'); // Поле оригинального номера
             const conditionInput = document.getElementById('condition');
+            const percentInput = document.getElementById('percent'); // Поле для процента
+            const cpkInput = document.getElementById('CpK'); // Поле для CpK
             const colorInput = document.getElementById('color');
-            const photoInput = document.getElementById('photo');
+            const skladInput = document.getElementById('sklad'); // Поле для склада
+            const idDetailInput = document.getElementById('ID_detail'); // Поле для уникального ID детали
+            const brandInput = document.getElementById('brand'); // Поле для бренда
+            const modelAndYearInput = document.getElementById('model_and_year'); // Поле для модели и года
+            const submitButton = document.getElementById('submitButton'); // Получаем кнопку
 
             if (action === 'edit') {
                 title.textContent = 'Редактировать деталь';
                 detailId.value = detail.id;
-                nameInput.value = detail.name;
-                priceInput.value = detail.price;
-                priceWDiscountInput.value = detail.price_w_discount;
-                dateInput.value = detail.data_created;
-                commentInput.value = detail.comment;
-                conditionInput.value = detail.condition;
-                colorInput.value = detail.color;
+                skladInput.value = detail.sklad || ''; // Заполняем поле склада
+                idDetailInput.value = detail.ID_detail || ''; // Заполняем уникальный ID детали
+                brandInput.value = detail.brand || ''; // Заполняем поле бренда
+                modelAndYearInput.value = detail.model_and_year || ''; // Заполняем поле модели и года
+                nameInput.value = detail.name || '';
+                priceInput.value = detail.price || '';
+                priceWDiscountInput.value = detail.price_w_discount || '';
+                dateInput.value = detail.data_created || ''; // Заполняем дату добавления
+                commentInput.value = detail.comment || '';
+                origNumberInput.value = detail.orig_number || ''; // Заполняем оригинальный номер
+                conditionInput.value = detail.condition || '';
+                percentInput.value = detail.percent || 0; // Заполняем процент
+                cpkInput.value = detail.CpK || ''; // Заполняем CpK
+                colorInput.value = detail.color || '';
+                submitButton.textContent = 'Обновить данные'; // Изменяем текст кнопки
             } else {
                 title.textContent = 'Добавить деталь';
                 detailId.value = '';
+                skladInput.value = '';
+                idDetailInput.value = '';
+                brandInput.value = '';
+                modelAndYearInput.value = '';
                 nameInput.value = '';
                 priceInput.value = '';
                 priceWDiscountInput.value = '';
                 dateInput.value = '';
                 commentInput.value = '';
+                origNumberInput.value = ''; // Очищаем оригинальный номер
                 conditionInput.value = '';
+                percentInput.value = 0; // Сбрасываем процент
+                cpkInput.value = ''; // Очищаем CpK
                 colorInput.value = '';
-                photoInput.value = '';
+                submitButton.textContent = 'Сохранить'; // Устанавливаем текст кнопки по умолчанию
             }
             modal.style.display = 'block';
         }
@@ -163,7 +185,7 @@
 
         function editDetail(detailId) {
             // Здесь вы должны сделать запрос на сервер, чтобы получить данные детали по ID
-            fetch(`/update_details/${detailId}`)
+            fetch(`/update_detail/${detailId}`)
                 .then(response => response.json())
                 .then(detail => {
                     openModal('edit', detail);
