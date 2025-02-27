@@ -2,17 +2,29 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
+    background-image: url("../img/background.jpeg");
+    background-position: center; /* Центрируем изображение */
+    background-size: cover; /* Чтобы изображение заполнило весь фон */
 }
 
 header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    text-align: center;
-    background-color: #000000;
-    padding: 10px 20px;
-    color: white;
+    display: flex; /* Используем Flexbox */
+    justify-content: space-between; /* Центрируем содержимое по горизонтали */
+    align-items: center; /* Центрируем содержимое по вертикали */
+    background-color: #000000; /* Цвет фона */
+    padding: 10px 20px; /* Отступы для заголовка */
+    color: white; /* Цвет текста */
 }
+
+.title {
+    color: white;
+    font-size: 200%;
+    text-decoration: none;
+    text-align: center; /* Центрируем текст заголовка */
+    margin: 0; /* Убираем отступы */
+
+}
+
 
 .menu {
     position: fixed;
@@ -63,7 +75,6 @@ header {
 }
 
 .button:hover {
-    border: 1px solid black;
     background-color: #A9A9A9;
     color: white;
 }
@@ -72,11 +83,6 @@ header {
     padding: 20px;
 }
 
-.title {
-    color: white;
-    font-size: 24px;
-    text-decoration: none;
-}
 
 ul {
     margin: 10px 0;
