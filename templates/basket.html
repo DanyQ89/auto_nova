@@ -36,7 +36,7 @@
         </thead>
         <tbody id="cartItems">
             {% for detail in details %}
-            <tr>
+            <tr data-detail-ID_detail="{{ detail.ID_detail }}">
                 <td>{{ detail.ID_detail }}</td>
                 <td>{{ detail.brand }}</td>
                 <td>{{ detail.model_and_year }}</td>
@@ -72,11 +72,11 @@
                 if (response.ok) {
                     alert("meow meow")
                     const data = await response.json();
-                    alert(data.success);
+                    alert("have response.json");
 
                     // Найдите строку таблицы, соответствующую удаляемой детали
-                    const row = document.querySelector(`tr[data-detail-id="${detailId}"]`);
-                    console.log('Row found:', row); // Выводим состояние row в консоль
+                    const row = document.querySelector(`tr[data-detail-ID_detail="${detailId}"]`);
+                    alert(`Row found: ${row}`); // Исправлено на обратные кавычки// Выводим состояние row в консоль
 
                     if (row) {
                         row.remove(); // Удалите строку из таблицы
