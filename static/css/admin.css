@@ -4,6 +4,15 @@ body {
     color: black;
     margin: 0;
     padding: 20px;
+
+
+
+}
+
+.background-main {
+    background-image: url("../img/back-main.jpeg");
+    background-position: center; /* Центрируем изображение */
+    background-size: cover; /* Чтобы изображение заполнило весь фон */
 }
 
 .admin-container {
@@ -12,24 +21,34 @@ body {
 }
 
 .admin-header {
-    width: 100%; /* Устанавливаем ширину заголовка на 100% */
+    width: auto; /* Устанавливаем ширину заголовка на 100% */
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
     background-color: #f0f0f0; /* Добавляем фон для заголовка */
-    padding: 10px; /* Добавляем отступы для заголовка */
+    text-align: center;
 }
 
 .admin-button {
-    background-color: black;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    cursor: pointer;
+    background-color: rgba(0,0,0,0.5); /* Цвет фона */
+    color: white; /* Цвет текста */
+    border-radius: 10px; /* Закругленные углы */
+    padding: 1% 30px; /* Увеличенные отступы для большей высоты и ширины */
+    margin-right: 3%; /* Отступ справа */
+    cursor: pointer; /* Указатель при наведении */
+    font-size: 18px; /* Размер шрифта */
+    font-weight: bold;
+    border: 2px solid transparent; /* Прозрачная граница по умолчанию */
+    transition: background-color 0.2s; /* Плавный переход для фона */
+    min-width: 150px; /* Минимальная ширина кнопки */
+    width: 17%;
+}
+
+.admin-button:hover {
+    background-color: #222; /* Более светлый цвет фона при наведении */
 }
 
 .admin-table {
+    background-color: #fff; /* Добавляем фон для заголовка */
     width: 100%; /* Устанавливаем ширину таблицы на 100% */
     table-layout: auto; /* Автоматическая ширина столбцов */
     border-collapse: collapse; /* Убираем двойные границы */
@@ -39,10 +58,6 @@ body {
     border: 1px solid #ddd; /* Граница для ячеек */
     padding: 8px; /* Отступы для ячеек */
     text-align: left; /* Выравнивание текста в ячейках */
-}
-
-.admin-table th {
-    background-color: #f0f0f0; /* Фон для заголовков таблицы */
 }
 
 .detail-photo {
@@ -58,16 +73,22 @@ body {
     top: 0;
     width: 100%; /* Полная ширина */
     height: 100%; /* Полная высота */
-    overflow: auto; /* Прокрутка, если необходимо */
+    overflow: none; /* Прокрутка, если необходимо */
     background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный фон */
 }
 
 .modal-content {
     background-color: white; /* Фон модального окна */
-    margin: 15% auto; /* Центрирование */
     padding: 20px; /* Отступы */
-    border: 1px solid black; /* Граница */
-    width: 80%; /* Ширина модального окна */
+    margin-left: auto;
+    margin-right: auto;
+    height: 95%;
+    border: 3px solid black; /* Граница */
+    width: 30%; /* Ширина модального окна */
+    border-radius: 30px;
+    background-image: url("../img/background.jpeg");
+    background-size: cover; /* Чтобы изображение заполнило весь фон */
+    background-position: center; /* Центрируем изображение */
 }
 
 .close {
@@ -88,4 +109,44 @@ body {
     .admin-table th, .admin-table td {
         font-size: 14px; /* Уменьшаем размер шрифта для маленьких экранов */
     }
+}
+
+.form-container {
+    max-height: 99%; /* Установите максимальную высоту контейнера */
+    overflow-y: auto; /* Добавляем вертикальную прокрутку */
+    padding: 10px; /* Отступы внутри контейнера */
+    border: 1px solid #ddd; /* Граница для визуального отделения */
+    border-radius: 5px; /* Закругленные углы */
+    background-color: #f9f9f9; /* Цвет фона контейнера */
+}
+
+.form-row {
+    display: flex; /* Используем Flexbox для размещения колонн */
+    justify-content : space-between; /* Распределяем пространство между колоннами */
+    margin-bottom: 15px; /* Отступ между строками */
+}
+
+.form-group {
+    flex: 1; /* Каждая группа занимает равное пространство */
+    margin-right: 10px; /* Отступ между колоннами */
+}
+
+.form-group:last-child {
+    margin-right: 0; /* Убираем отступ у последней группы */
+}
+
+.modal-content {
+    background-color: white; /* Фон модального окна */
+    padding: 20px; /* Отступы */
+    margin-left: auto;
+    margin-right: auto;
+    height: auto; /* Убираем фиксированную высоту */
+    max-height: 99%; /* Устанавливаем максимальную высоту (99% от высоты экрана) */
+    overflow-y: auto; /* Добавляем вертикальную прокрутку */
+    border: 3px solid black; /* Граница */
+    width: 30%; /* Ширина модального окна */
+    border-radius: 30px;
+    background-image: url("../img/background.jpeg");
+    background-size: cover; /* Чтобы изображение заполнило весь фон */
+    background-position: center; /* Центрируем изображение */
 }

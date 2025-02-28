@@ -1,3 +1,4 @@
+import base64
 from datetime import datetime
 
 from flask import Flask, render_template, make_response, jsonify, flash, redirect, request
@@ -36,6 +37,23 @@ def get_thing_by_number():
     return render_template("get_thing_by_number.html")
 
 
+@app.route('/<car_name>')
+def show_car(car_name):
+    print("Catch query", car_name)
+    session = create_session()
+    details = session.query(Detail).filter(Detail.brand.ilike(car_name)).all()
+
+    # Декодируем изображения в base64
+    for detail in details:
+        if detail.photo:
+            detail.photo = base64.b64encode(detail.photo).decode('utf-8')  # Кодируем в base64
+
+    for detail in details:
+        print(detail.name, detail.brand, detail.price)
+
+    return render_template('car.html', products=details)
+
+
 @app.route('/update_detail/<int:detail_id>', methods=['GET'])
 def update_detail(detail_id):
     session = create_session()
@@ -64,32 +82,69 @@ def update_detail(detail_id):
 
 @app.route('/add_detail', methods=['POST'])
 def add_detail():
-    new_detail = Detail(
-        creator_id=request.form['creator_id'],  # Поле для идентификатора создателя
-        sklad=request.form['sklad'],  # Поле для склада
-        ID_detail=request.form['ID_detail'],  # Поле для уникального идентификатора детали
-        brand=request.form['brand'],  # Поле для бренда
-        model_and_year=request.form['model_and_year'],  # Поле для модели и года
-        name=request.form['name'],  # Поле для названия
-        price=request.form['price'],  # Поле для цены
-        price_w_discount=request.form.get('price_w_discount', ''),  # Поле для цены со скидкой
-        comment=request.form.get('comment', ''),  # Поле для комментария
-        orig_number=request.form.get('orig_number', ''),  # Поле для оригинального номера
-        condition=request.form.get('condition', ''),  # Поле для состояния
-        percent=request.form.get('percent', 0),  # Поле для процента
-        CpK=request.form.get('CpK', ''),  # Поле для CpK
-        color=request.form.get('color', ''),  # Поле для цвета
-    )
-
-    # Обработка загрузки файла
-    photo = request.files.get('photo')
-    if photo:
-        new_detail.photo = photo.read()  # Сохраняем содержимое файла в поле BLOB
-
+    print(request.form)
     session = create_session()
-    # Добавляем новую деталь в сессию и сохраняем изменения
-    session.add(new_detail)
-    session.commit()
+    if request.form['id'] == '':
+        new_detail = Detail(
+            creator_id=request.form['creator_id'],  # Поле для идентификатора создателя
+            sklad=request.form['sklad'],  # Поле для склада
+            ID_detail=request.form['ID_detail'],  # Поле для уникального идентификатора детали
+            brand=request.form['brand'],  # Поле для бренда
+            model_and_year=request.form['model_and_year'],  # Поле для модели и года
+            name=request.form['name'],  # Поле для названия
+            price=request.form['price'],  # Поле для цены
+            price_w_discount=request.form.get('price_w_discount', ''),  # Поле для цены со скидкой
+            comment=request.form.get('comment', ''),  # Поле для комментария
+            orig_number=request.form.get('orig_number', ''),  # Поле для оригинального номера
+            condition=request.form.get('condition', ''),  # Поле для состояния
+            percent=request.form.get('percent', 0),  # Поле для процента
+            CpK=request.form.get('CpK', ''),  # Поле для CpK
+            color=request.form.get('color', ''),  # Поле для цвета
+        )
+
+        # Обработка загрузки файла
+        photo = request.files.get('photo')
+        if photo:
+            new_detail.photo = photo.read()  # Сохраняем содержимое файла в поле BLOB
+
+        # Добавляем новую деталь в сессию и сохраняем изменения
+        session.add(new_detail)
+        session.commit()
+        flash('Деталь успешно добавлена!', 'success')
+
+    else:
+        detail_id = request.form['id']
+        # Находим деталь по id
+        detail = session.query(Detail).filter(Detail.id == detail_id).first()
+
+        if not detail:
+            flash('Деталь не найдена!', 'error')
+            return redirect('/admin')  # Перенаправляем на страницу администрирования
+
+        # Обновляем поля детали на основе данных из request.form
+        detail.creator_id = request.form.get('creator_id', detail.creator_id)
+        detail.sklad = request.form.get('sklad', detail.sklad)
+        detail.ID_detail = request.form.get('ID_detail', detail.ID_detail)
+        detail.brand = request.form.get('brand', detail.brand)
+        detail.model_and_year = request.form.get('model_and_year', detail.model_and_year)
+        detail.name = request.form.get('name', detail.name)
+        detail.price = request.form.get('price', detail.price)
+        detail.price_w_discount = request.form.get('price_w_discount', detail.price_w_discount)
+        detail.comment = request.form.get('comment', detail.comment)
+        detail.orig_number = request.form.get('orig_number', detail.orig_number)
+        detail.condition = request.form.get('condition', detail.condition)
+        detail.percent = request.form.get('percent', detail.percent)
+        detail.CpK = request.form.get('CpK', detail.CpK)
+        detail.color = request.form.get('color', detail.color)
+
+        # Обработка загрузки файла (если есть)
+        photo = request.files.get('photo')
+        print(photo)
+        if photo:
+            detail.photo = photo.read()  # Сохраняем содержимое файла в поле BLOB
+        # Сохраняем изменения в базе данных
+        session.commit()
+        flash('Деталь успешно обновлена!', 'success')
 
     return redirect('/admin')
 

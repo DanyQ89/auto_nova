@@ -11,191 +11,182 @@
 
 <body>
 
-    {% block content %}
-    <div class="admin-container">
-        <header class="admin-header">
-            <h1>Управление деталями</h1>
-            <button id="addDetailBtn" class="admin-button">Добавить деталь</button>
-        </header>
-        <table class="admin-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Название</th>
-                    <th>Цена</th>
-                    <th>Цена со скидкой</th>
-                    <th>Дата добавления</th>
-                    <th>Комментарий</th>
-                    <th>Состояние</th>
-                    <th>Цвет</th>
-                    <th>Фото</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for detail in details %}
-                <tr ondblclick="editDetail({{ detail.id }})">
-                    <td>{{ detail.id }}</td>
-                    <td>{{ detail.name }}</td>
-                    <td>{{ detail.price }}</td>
-                    <td>{{ detail.price_w_discount }}</td>
-                    <td>{{ detail.data_created }}</td>
-                    <td>{{ detail.comment }}</td>
-                    <td>{{ detail.condition }}</td>
-                    <td>{{ detail.color }}</td>
-                    <td>
-                        {% if detail.photo %}
-                            <img src="data:image/png;base64,{{ detail.photo }}" alt="Фото" class="detail-photo">
-                        {% else %}
-                            Нет фото
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+{% block content %}
+<div id="menu" class="menu">
+    <a href="./">На главную</a>
+    <a href="./contacts">Контакты</a>
+    <a href="./guarantees">Гарантии</a>
+    <a href="#" onclick="toggleMenu()">Закрыть меню</a>
+</div>
+<div class="admin-container background-main">
+    <header class="admin-header background-main">
+        <h1>Управление деталями</h1>
+        <button id="addDetailBtn" class="admin-button">Добавить деталь</button>
+    </header>
+    <table class="admin-table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>ID Админа</th>
+            <th>Название</th>
+            <th>Цена</th>
+            <th>Цена со скидкой</th>
+            <th>Дата добавления</th>
+            <th>Комментарий</th>
+            <th>Состояние</th>
+            <th>Цвет</th>
+            <th>Склад</th> <!-- Новый столбец -->
+            <th>Бренд</th> <!-- Новый столбец -->
+            <th>Уникальный ID детали</th> <!-- Новый столбец -->
+            <th>Модель и год</th> <!-- Новый столбец -->
+            <th>Оригинальный номер</th> <!-- Новый столбец -->
+            <th>Процент</th> <!-- Новый столбец -->
+            <th>CpK</th> <!-- Новый столбец -->
+            <th>Фото</th> <!-- Новый столбец -->
+
+        </tr>
+        </thead>
+        <tbody>
+        {% for detail in details %}
+        <tr ondblclick="editDetail({{ detail.id }})">
+            <td>{{ detail.id }}</td>
+            <td>{{ current_user.name | capitalize }}</td>
+            <td>{{ detail.name }}</td>
+            <td>{{ detail.price }}</td>
+            <td>{{ detail.price_w_discount }}</td>
+            <td>{{ detail.data_created }}</td>
+            <td>{{ detail.comment }}</td>
+            <td>{{ detail.condition }}</td>
+            <td>{{ detail.color }}</td>
+            <td>{{ detail.sklad }}</td> <!-- Новый столбец -->
+            <td>{{ detail.brand }}</td> <!-- Новый столбец -->
+            <td>{{ detail.ID_detail }}</td> <!-- Новый столбец -->
+            <td>{{ detail.model_and_year }}</td> <!-- Новый столбец -->
+            <td>{{ detail.orig_number }}</td> <!-- Новый столбец -->
+            <td>{{ detail.percent }}</td> <!-- Новый столбец -->
+            <td>{{ detail.CpK }}</td> <!-- Новый столбец -->
+            <td>
+                {% if detail.photo %}
+                <img src="data:image/png;base64,{{ detail.photo }}" alt="Нет фото" class="detail-photo">
+                {% else %}
+                Нет фото
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Модальное окно для добавления/редактирования детали -->
+<div id="detailModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <form id="detailForm" method="POST" action="{{ url_for('add_detail') }}" enctype="multipart/form-data"
+              class="modal-form">
+            <h2 id="modalTitle" data-content_root style="text-align: center;">Добавить деталь</h2>
+            <input type="hidden" name="id" id="detailId">
+            <input type="hidden" name="creator_id" id="creatorId" value="{{ current_user.id }}">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="sklad">Склад:</label>
+                    <input type="text" name="sklad" id="sklad" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="ID_detail">Уникальный ID детали:</label>
+                    <input type="text" name="ID_detail" id="ID_detail" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="brand">Бренд:</label>
+                    <input type="text" name="brand" id="brand" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="model_and_year">Модель и год:</label>
+                    <input type="text" name="model_and_year" id="model_and_year" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name">Название:</label>
+                    <input type="text" name="name" id="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="price">Цена:</label>
+                    <input type="text" name="price" id="price" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="price_w_discount">Цена со скидкой:</label>
+                    <input type="text" name="price_w_discount" id="price_w_discount">
+                </div>
+
+                <div class="form-group">
+                    <label for="data_created">Дата добавления:</label>
+                    <input type="date" name="data_created" id="data_created" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="comment">Комментарий:</label>
+                    <input type="text" name="comment" id="comment">
+                </div>
+
+                <div class="form-group">
+                    <label for="orig_number">Оригинальный номер:</label>
+                    <input type="text" name="orig_number" id="orig_number">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="condition">Состояние:</label>
+                    <input type="text" name="condition" id="condition">
+                </div>
+
+                <div class="form-group">
+                    <label for="percent">Процент:</label>
+                    <input type="number" name="percent" id="percent" value="0">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="CpK">CpK:</label>
+                    <input type="text" name="CpK" id="CpK">
+                </div>
+
+                <div class="form-group">
+                    <label for="color">Цвет:</label>
+                    <input type="text" name="color" id="color">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="photo">Фото:</label>
+                    <input type="file" name="photo" id="photo" accept="image/*">
+                </div>
+            </div>
+
+            <button type="submit" class="submit-button" id="submitButton">Сохранить</button>
+        </form>
     </div>
+</div>
 
-    <!-- Модальное окно для добавления/редактирования детали -->
-    <div id="detailModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <h2 id="modalTitle">Добавить деталь</h2>
-            <form id="detailForm" method="POST" action="{{ url_for('add_detail') }}" enctype="multipart/form-data" class="modal-form">
-                <input type="hidden" name="id" id="detailId">
-                <input type="hidden" name="creator_id" id="creatorId" value="{{ current_user.id }}"> <!-- Поле для идентификатора создателя -->
+<script src="./static/js/scripts.js"></script>
 
-                <label for="sklad">Склад:</label>
-                <input type="text" name="sklad" id="sklad" required>
-
-                <label for="ID_detail">Уникальный ID детали:</label>
-                <input type="text" name="ID_detail" id="ID_detail" required>
-
-                <label for="brand">Бренд:</label>
-                <input type="text" name="brand" id="brand" required>
-
-                <label for="model_and_year">Модель и год:</label>
-                <input type="text" name="model_and_year" id="model_and_year" required>
-
-                <label for="name">Название:</label>
-                <input type="text" name="name" id="name" required>
-
-                <label for="price">Цена:</label>
-                <input type="text" name="price" id="price" required>
-
-                <label for="price_w_discount">Цена со скидкой:</label>
-                <input type="text" name="price_w_discount" id="price_w_discount">
-
-                <label for="data_created">Дата добавления:</label>
-                <input type="date" name="data_created" id="data_created" required>
-
-                <label for="comment">Комментарий:</label>
-                <input type="text" name="comment" id="comment">
-
-                <label for="orig_number">Оригинальный номер:</label>
-                <input type="text" name="orig_number" id="orig_number">
-
-                <label for="condition">Состояние:</label>
-                <input type="text" name="condition" id="condition">
-
-                <label for="percent">Процент:</label>
-                <input type="number" name="percent" id="percent" value="0">
-
-                <label for="CpK">CpK:</label>
-                <input type="text" name="CpK" id="CpK">
-
-                <label for="color">Цвет:</label>
-                <input type="text" name="color" id="color">
-
-                <label for="photo">Фото:</label>
-                <input type="file" name="photo" id="photo" accept="image/*">
-
-                <button type="submit" class="submit-button" id="submitButton">Сохранить</button> <!-- Изменено на submitButton -->
-            </form>
-        </div>
-    </div>
-
-    <script>
-        document.getElementById('addDetailBtn').onclick = function() {
-            openModal('add');
-        };
-
-        function openModal(action, detail = {}) {
-            const modal = document.getElementById('detailModal');
-            const title = document.getElementById('modalTitle');
-            const detailId = document.getElementById('detailId');
-            const nameInput = document.getElementById('name');
-            const priceInput = document.getElementById('price');
-            const priceWDiscountInput = document.getElementById('price_w_discount');
-            const dateInput = document.getElementById('data_created');
-            const commentInput = document.getElementById('comment');
-            const origNumberInput = document.getElementById('orig_number'); // Поле оригинального номера
-            const conditionInput = document.getElementById('condition');
-            const percentInput = document.getElementById('percent'); // Поле для процента
-            const cpkInput = document.getElementById('CpK'); // Поле для CpK
-            const colorInput = document.getElementById('color');
-            const skladInput = document.getElementById('sklad'); // Поле для склада
-            const idDetailInput = document.getElementById('ID_detail'); // Поле для уникального ID детали
-            const brandInput = document.getElementById('brand'); // Поле для бренда
-            const modelAndYearInput = document.getElementById('model_and_year'); // Поле для модели и года
-            const submitButton = document.getElementById('submitButton'); // Получаем кнопку
-
-            if (action === 'edit') {
-                title.textContent = 'Редактировать деталь';
-                detailId.value = detail.id;
-                skladInput.value = detail.sklad || ''; // Заполняем поле склада
-                idDetailInput.value = detail.ID_detail || ''; // Заполняем уникальный ID детали
-                brandInput.value = detail.brand || ''; // Заполняем поле бренда
-                modelAndYearInput.value = detail.model_and_year || ''; // Заполняем поле модели и года
-                nameInput.value = detail.name || '';
-                priceInput.value = detail.price || '';
-                priceWDiscountInput.value = detail.price_w_discount || '';
-                dateInput.value = detail.data_created || ''; // Заполняем дату добавления
-                commentInput.value = detail.comment || '';
-                origNumberInput.value = detail.orig_number || ''; // Заполняем оригинальный номер
-                conditionInput.value = detail.condition || '';
-                percentInput.value = detail.percent || 0; // Заполняем процент
-                cpkInput.value = detail.CpK || ''; // Заполняем CpK
-                colorInput.value = detail.color || '';
-                submitButton.textContent = 'Обновить данные'; // Изменяем текст кнопки
-            } else {
-                title.textContent = 'Добавить деталь';
-                detailId.value = '';
-                skladInput.value = '';
-                idDetailInput.value = '';
-                brandInput.value = '';
-                modelAndYearInput.value = '';
-                nameInput.value = '';
-                priceInput.value = '';
-                priceWDiscountInput.value = '';
-                dateInput.value = '';
-                commentInput.value = '';
-                origNumberInput.value = ''; // Очищаем оригинальный номер
-                conditionInput.value = '';
-                percentInput.value = 0; // Сбрасываем процент
-                cpkInput.value = ''; // Очищаем CpK
-                colorInput.value = '';
-                submitButton.textContent = 'Сохранить'; // Устанавливаем текст кнопки по умолчанию
-            }
-            modal.style.display = 'block';
-        }
-
-        function closeModal() {
-            document.getElementById('detailModal').style.display = 'none';
-        }
-
-        function editDetail(detailId) {
-            // Здесь вы должны сделать запрос на сервер, чтобы получить данные детали по ID
-            fetch(`/update_detail/${detailId}`)
-                .then(response => response.json())
-                .then(detail => {
-                    openModal('edit', detail);
-                })
-                .catch(error => console.error('Ошибка:', error));
-        }
-    </script>
-
-<!--    <script src="./static/js/scripts.js"></script>-->
-    {% endblock %}
+{% endblock %}
 
 </body>
 </html>

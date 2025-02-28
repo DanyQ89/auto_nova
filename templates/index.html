@@ -13,18 +13,17 @@
     <div id="menu" class="menu">
         <a href="./contacts">Контакты</a>
         <a href="./guarantees">Гарантии</a>
-        <a href="./basket">Корзина</a>
         <a href="#" onclick="toggleMenu()">Закрыть меню</a>
     </div>
     <h1>Логотипы автомобилей</h1>
-    <div class="logo-container">
+        <div class="logo-container">
         <a href="https://www.toyota.com" target="_blank">
             <img src="../static/img/toyota.svg" alt="Toyota" class="logo">
         </a>
         <a href="https://www.ford.com" target="_blank">
             <img src="../static/img/ford.svg" alt="Ford" class="logo">
         </a>
-        <a href="https://www.bmw.com" target="_blank">
+        <a href="{{ url_for('show_car', car_name='BMW') }}" target="_blank">
             <img src="../static/img/BMW.png" alt="BMW" class="logo">
         </a>
         <a href="https://www.honda.com" target="_blank">
@@ -46,13 +45,31 @@
             <img src="../static/img/mercedes.svg" alt="Mercedes" class="logo">
         </a>
         <a href="https://www.renault.com" target="_blank">
-            <img src="../static/img/renault.svg" alt="Renault" class="logo">
+            <img src="../static/img/renault.png" alt="Renault" class="logo">
+        </a>
+        <a href="https://www.volkswagen.com" target="_blank">
+            <img src="../static/img/volkswagen.png" alt="Volkswagen" class="logo">
+        </a>
+        <a href="https://www.audi.com" target="_blank">
+            <img src="../static/img/audi.png" alt="Audi" class="logo">
+        </a>
+        <a href="https://www.porsche.com" target="_blank">
+            <img src="../static/img/porsche.png" alt="Porsche" class="logo">
+        </a>
+        <a href="https://www.subaru.com" target="_blank">
+            <img src="../static/img/subaru.png" alt="Subaru" class="logo">
+        </a>
+        <a href="https://www.lexus.com" target="_blank">
+            <img src="../static/img/lexus.png" alt="Lexus" class="logo">
+        </a>
+        <a href="https://www.fiat.com" target="_blank">
+            <img src="../static/img/fiat.png" alt="Fiat" class="logo">
+        </a>
+        <a href="https://www.mitsubishi-motors.com" target="_blank">
+            <img src="../static/img/mitsubishi.png" alt="Mitsubishi" class="logo">
         </a>
     </div>
-    <div class="content">
-        <h1>Добро пожаловать в наш магазин автомобильных запчастей!</h1>
-        <p>Здесь вы найдете все необходимые запчасти для вашего автомобиля.</p>
-    </div>
+
 
     <h2>Поиск детали по номеру</h2>
 
