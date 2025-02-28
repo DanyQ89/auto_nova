@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<link rel="stylesheet" href="../../static/css/car.css">
+{% endblock %}
+
+{% block content %}
+<div id="menu" class="menu">
+    <a href="./">На главную</a>
+    <a href="./contacts">Контакты</a>
+    <a href="#" onclick="toggleMenu()">Закрыть меню</a>
+</div>
+    <h1>Детали для автомобиля: {{ products[0].brand if products else 'Нет данных' }}</h1>
+    <div class="product-container">
+        {% for product in products %}
+        <div class="product-card">
+            {% if product.photo %}
+            <img src="data:image/jpeg;base64,{{ product.photo }}" alt="{{ product.name }}" class="product-image">
+            {% else %}
+            <p>Изображение недоступно</p>
+            {% endif %}
+            <div class="product-info">
+                <h2 class="product-title">{{ product.name }}</h2>
+                <p class="product-description">{{ product.comment }}</p>
+                <div class="product-price">
+                    <span class="current-price">{{ product.price }} ₽</span>
+                    {% if product.price_w_discount %}
+                        <span class="old-price">{{ product.price_w_discount }} ₽</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -57,7 +57,6 @@
     <button id="checkoutButton">Оформить заказ</button>
     <script>
         async function removeFromBasket(detailId) {
-            alert("meow")
             try {
                 const response = await fetch(`/remove_from_basket/${detailId}`, {
                     method: 'POST',
@@ -66,21 +65,14 @@
                     }
                 });
 
-                // Выводим состояние response в консоль
-                alert('Response:', response.ok);
-
                 if (response.ok) {
-                    alert("meow meow")
                     const data = await response.json();
-                    alert("have response.json");
 
                     // Найдите строку таблицы, соответствующую удаляемой детали
                     const row = document.querySelector(`tr[data-detail-ID_detail="${detailId}"]`);
-                    alert(`Row found: ${row}`); // Исправлено на обратные кавычки// Выводим состояние row в консоль
 
                     if (row) {
-                        row.remove(); // Удалите строку из таблицы
-                        alert(`Row with detail ID ${detailId} removed from table.`); // Исправлено на обратные кавычки
+                        row.remove();
                         console.log(`Row with detail ID ${detailId} removed from table.`);
                     }
 
