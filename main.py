@@ -340,7 +340,7 @@ def edit_profile():
 @login_manager.user_loader
 def load_user(user_id):
     sess = create_session()
-    return sess.query(User).get(user_id)
+    return sess.get(User, user_id)
 
 
 @app.route('/logout')
