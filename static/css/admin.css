@@ -92,6 +92,20 @@ body {
     background-position: center; /* Центрируем изображение */
 }
 
+.modal-content-photo {
+    background-color: white; /* Фон модального окна */
+    padding: 20px; /* Отступы */
+    margin-left: auto;
+    margin-right: auto;
+    height: 95%;
+    border: 3px solid black; /* Граница */
+    width: 30%; /* Ширина модального окна */
+    border-radius: 30px;
+    background-image: url("../img/background.jpeg");
+    background-size: cover; /* Чтобы изображение заполнило весь фон */
+    background-position: center; /* Центрируем изображение */
+}
+
 .close {
     color: black; /* Цвет для кнопки закрытия */
     float: right; /* Выравнивание вправо */

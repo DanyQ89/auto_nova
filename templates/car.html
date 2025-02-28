@@ -1,35 +1,50 @@
-{% extends "base.html" %}
-
-{% block styles %}
-<link rel="stylesheet" href="../../static/css/car.css">
-{% endblock %}
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../static/css/car.css">
+    {% extends "base.html" %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
 
 {% block content %}
 <div id="menu" class="menu">
     <a href="./">На главную</a>
     <a href="./contacts">Контакты</a>
+    <a href="./guarantees">Гарантии</a>
     <a href="#" onclick="toggleMenu()">Закрыть меню</a>
 </div>
-    <h1>Детали для автомобиля: {{ products[0].brand if products else 'Нет данных' }}</h1>
-    <div class="product-container">
-        {% for product in products %}
-        <div class="product-card">
-            {% if product.photo %}
-            <img src="data:image/jpeg;base64,{{ product.photo }}" alt="{{ product.name }}" class="product-image">
-            {% else %}
-            <p>Изображение недоступно</p>
-            {% endif %}
-            <div class="product-info">
-                <h2 class="product-title">{{ product.name }}</h2>
-                <p class="product-description">{{ product.comment }}</p>
-                <div class="product-price">
-                    <span class="current-price">{{ product.price }} ₽</span>
-                    {% if product.price_w_discount %}
-                        <span class="old-price">{{ product.price_w_discount }} ₽</span>
-                    {% endif %}
-                </div>
-            </div>
+<div class="brand-container">
+    <h3 class="brand-header">
+        <span class="brand">{{ products[0].brand if products else 'Детали для данной марки не найдены' }}</span>
+    </h3>
+    <br>
+</div>
+<h3>
+    <span class="details">{{ 'Найдено деталей: ' + ((products | length) | string) if products else '' }}</span>
+
+</h3>
+
+<div class="product-container">
+    {% for product in products %}
+   <div class="product-card">
+    {% if product.photo %}
+        <div class="image-container">
+            <img src="data:image/jpg;base64,{{ product.photo }}" alt="{{ product.name }}" class="product-image">
         </div>
-        {% endfor %}
+    {% else %}
+        <p>Изображение недоступно</p>
+    {% endif %}
+    <div class="product-info">
+        <h2 class="product-title">{{ product.name }}</h2>
+        <p class="product-description">{{ product.comment }}</p>
+        <div class="product-price">
+            <span class="current-price">{{ product.price }} ₽</span>
+            {% if product.price_w_discount %}
+            <span class="old-price">{{ product.price_w_discount }} ₽</span>
+            {% endif %}
+        </div>
     </div>
+</div>
+    {% endfor %}
+</div>
 {% endblock %}

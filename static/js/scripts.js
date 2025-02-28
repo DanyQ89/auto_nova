@@ -35,6 +35,8 @@ window.onclick = function(event) {
         menu.classList.remove('active'); // Закрываем меню
     } else if (event.target === modal) {
         closeModal();
+    } else if (event.target === photoModal) {
+        closePhotoModal();
     }
 };
 
@@ -116,3 +118,29 @@ function editDetail(detailId) {
 }
 
 // Функция для переключения меню
+
+
+async function fetchPhoto(detailId) {
+    try {
+        const response = await fetch(`/photo/${detailId}`); // Запрос на сервер для получения фото
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const photoData = await response.text(); // Получаем данные изображения
+        openPhotoModal(photoData); // Открываем модальное окно с изображением
+    } catch (error) {
+        console.error('Ошибка при получении фото:', error);
+    }
+}
+
+function openPhotoModal(photo) {
+    const modal = document.getElementById('photoModal');
+    const modalImage = document.getElementById('modalImage');
+    modalImage.src = `data:image/jpeg;base64,${photo}`; // Устанавливаем источник изображения
+    modal.style.display = "block"; // Показываем модальное окно
+}
+
+function closePhotoModal() {
+    const modal = document.getElementById('photoModal');
+    modal.style.display = "none"; // Скрываем модальное окно
+}
