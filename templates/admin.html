@@ -29,6 +29,9 @@
             <th>ID</th>
             <th>ID Админа</th>
             <th>Название</th>
+            <th>Бренд</th> <!-- Новый столбец -->
+            <th>Модель и год</th> <!-- Новый столбец -->
+
             <th>Цена</th>
             <th>Цена со скидкой</th>
             <th>Дата добавления</th>
@@ -36,9 +39,7 @@
             <th>Состояние</th>
             <th>Цвет</th>
             <th>Склад</th> <!-- Новый столбец -->
-            <th>Бренд</th> <!-- Новый столбец -->
             <th>Уникальный ID детали</th> <!-- Новый столбец -->
-            <th>Модель и год</th> <!-- Новый столбец -->
             <th>Оригинальный номер</th> <!-- Новый столбец -->
             <th>Процент</th> <!-- Новый столбец -->
             <th>CpK</th> <!-- Новый столбец -->
@@ -52,6 +53,8 @@
             <td>{{ detail.id }}</td>
             <td>{{ current_user.name | capitalize }}</td>
             <td>{{ detail.name }}</td>
+            <td>{{ detail.brand }}</td> <!-- Новый столбец -->
+            <td>{{ detail.model_and_year }}</td> <!-- Новый столбец -->
             <td>{{ detail.price }}</td>
             <td>{{ detail.price_w_discount }}</td>
             <td>{{ detail.data_created }}</td>
@@ -59,18 +62,20 @@
             <td>{{ detail.condition }}</td>
             <td>{{ detail.color }}</td>
             <td>{{ detail.sklad }}</td> <!-- Новый столбец -->
-            <td>{{ detail.brand }}</td> <!-- Новый столбец -->
             <td>{{ detail.ID_detail }}</td> <!-- Новый столбец -->
-            <td>{{ detail.model_and_year }}</td> <!-- Новый столбец -->
             <td>{{ detail.orig_number }}</td> <!-- Новый столбец -->
             <td>{{ detail.percent }}</td> <!-- Новый столбец -->
             <td>{{ detail.CpK }}</td> <!-- Новый столбец -->
             <td>
                 {% if detail.photo %}
-                <img src="data:image/png;base64,{{ detail.photo }}" alt="Нет фото" class="detail-photo">
+                <button class="view-photo-button" onclick="fetchPhoto('{{ detail.id }}')">Просмотреть фото</button>
                 {% else %}
                 Нет фото
                 {% endif %}
+            </td>
+            <td>
+                <button class="view-photo-button" onclick="document.getElementById('file-input').click()">Обновить фото</button>
+<input type="file" id="file-input" style="display:none;" onchange="uploadFile('{{ detail.ID_detail }}')">
             </td>
         </tr>
         {% endfor %}
@@ -181,6 +186,13 @@
 
             <button type="submit" class="submit-button" id="submitButton">Сохранить</button>
         </form>
+    </div>
+</div>
+
+<div id="photoModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closePhotoModal()">&times;</span>
+        <img id="modalImage" src="" alt="Фото детали" style="width: auto; height: auto;">
     </div>
 </div>
 

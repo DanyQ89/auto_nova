@@ -1,6 +1,3 @@
-import base64
-from datetime import datetime
-
 from flask import Flask, render_template, make_response, jsonify, flash, redirect, request
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 from utils.config import secret_key
@@ -8,6 +5,7 @@ from utils.help_functions import get_number
 from forms.user import RegisterUser, LoginUser
 from data.database import create_session, global_init
 from data.users import User, Detail, Basket, basket_details
+import base64
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secret_key
@@ -17,7 +15,6 @@ login_manager.init_app(app)
 
 @app.route("/", methods=["GET", "POST"])
 def main_page():
-    print(1)
     print(current_user.__dict__)
     return render_template("index.html")
 
@@ -36,21 +33,40 @@ def contacts():
 def get_thing_by_number():
     return render_template("get_thing_by_number.html")
 
+@app.route('/add_photo', methods=['POST'])
+def add_photo():
+    print("catch add photo", request.form.get('detail_id'))
+    detail_id = request.form.get('detail_id')
+    if 'file' not in request.files:
+        return {'status': 'error', 'message': 'Нет файла для загрузки'}, 400
+    file = request.files['file']
+    session = create_session()
+    detail = session.query(Detail).filter(Detail.ID_detail == detail_id).first()
+    print(detail)
+    if detail and file:
+        detail.photo = file.read()
+        session.commit()
+        session.close()
+        return {'status': 'success', 'message': 'Фото обновлено успешно!'}, 200
+    else:
+        session.close()
+        return {'status': 'error', 'message': 'Деталь не найдена'}, 404
+
 
 @app.route('/<car_name>')
 def show_car(car_name):
-    print("Catch query", car_name)
     session = create_session()
     details = session.query(Detail).filter(Detail.brand.ilike(car_name)).all()
 
     # Декодируем изображения в base64
     for detail in details:
         if detail.photo:
-            detail.photo = base64.b64encode(detail.photo).decode('utf-8')  # Кодируем в base64
+            detail.photo = base64.b64encode(detail.photo).decode('utf-8')
 
     for detail in details:
         print(detail.name, detail.brand, detail.price)
 
+    session.close()  # Закрываем сессию
     return render_template('car.html', products=details)
 
 
@@ -58,9 +74,9 @@ def show_car(car_name):
 def update_detail(detail_id):
     session = create_session()
     print("update detail with ID:", detail_id)
-    detail = session.query(Detail).filter(Detail.id==detail_id).first()
+    detail = session.query(Detail).filter(Detail.id == detail_id).first()
     if detail:
-        return jsonify({
+        response = jsonify({
             'id': detail.id,
             'sklad': detail.sklad,
             'ID_detail': detail.ID_detail,
@@ -77,29 +93,32 @@ def update_detail(detail_id):
             'color': detail.color,
             'data_created': detail.data_created.strftime('%Y-%m-%d')
         })
+
+        session.close()  # Закрываем сессию
+        return response
+    session.close()  # Закрываем сессию
     return jsonify({'error': 'Detail not found'}), 404
 
 
 @app.route('/add_detail', methods=['POST'])
-def add_detail():
-    print(request.form)
+async def add_detail():
     session = create_session()
     if request.form['id'] == '':
         new_detail = Detail(
-            creator_id=request.form['creator_id'],  # Поле для идентификатора создателя
-            sklad=request.form['sklad'],  # Поле для склада
-            ID_detail=request.form['ID_detail'],  # Поле для уникального идентификатора детали
-            brand=request.form['brand'],  # Поле для бренда
-            model_and_year=request.form['model_and_year'],  # Поле для модели и года
-            name=request.form['name'],  # Поле для названия
-            price=request.form['price'],  # Поле для цены
-            price_w_discount=request.form.get('price_w_discount', ''),  # Поле для цены со скидкой
-            comment=request.form.get('comment', ''),  # Поле для комментария
-            orig_number=request.form.get('orig_number', ''),  # Поле для оригинального номера
-            condition=request.form.get('condition', ''),  # Поле для состояния
-            percent=request.form.get('percent', 0),  # Поле для процента
-            CpK=request.form.get('CpK', ''),  # Поле для CpK
-            color=request.form.get('color', ''),  # Поле для цвета
+            creator_id=request.form['creator_id'],
+            sklad=request.form['sklad'],
+            ID_detail=request.form['ID_detail'],
+            brand=request.form['brand'],
+            model_and_year=request.form['model_and_year'],
+            name=request.form['name'],
+            price=request.form['price'],
+            price_w_discount=request.form.get('price_w_discount', ''),
+            comment=request.form.get('comment', ''),
+            orig_number=request.form.get('orig_number', ''),
+            condition=request.form.get('condition', ''),
+            percent=request.form.get('percent', 0),
+            CpK=request.form.get('CpK', ''),
+            color=request.form.get('color', ''),
         )
 
         # Обработка загрузки файла
@@ -114,12 +133,12 @@ def add_detail():
 
     else:
         detail_id = request.form['id']
-        # Находим деталь по id
         detail = session.query(Detail).filter(Detail.id == detail_id).first()
 
         if not detail:
             flash('Деталь не найдена!', 'error')
-            return redirect('/admin')  # Перенаправляем на страницу администрирования
+            session.close()  # Закрываем сессию
+            return redirect('/admin')
 
         # Обновляем поля детали на основе данных из request.form
         detail.creator_id = request.form.get('creator_id', detail.creator_id)
@@ -137,16 +156,21 @@ def add_detail():
         detail.CpK = request.form.get('CpK', detail.CpK)
         detail.color = request.form.get('color', detail.color)
 
-        # Обработка загрузки файла (если есть)
+        # res = get_photo(request)
+        # if res:
+        #     detail.photo = get_photo(request)
+
+
         photo = request.files.get('photo')
-        print(photo)
         if photo:
             detail.photo = photo.read()  # Сохраняем содержимое файла в поле BLOB
-        # Сохраняем изменения в базе данных
+
         session.commit()
         flash('Деталь успешно обновлена!', 'success')
 
+    session.close()  # Закрываем сессию
     return redirect('/admin')
+
 
 @app.route("/remove_from_basket/<string:detail_id>", methods=["POST"])
 @login_required
@@ -154,14 +178,11 @@ def remove_from_basket(detail_id):
     session = create_session()
     print("Removing detail with ID:", detail_id)
     detail = session.query(Detail).filter(Detail.ID_detail == detail_id).first()
-    # Получаем корзину текущего пользователя
     basket = session.query(Basket).filter_by(user_id=current_user.id).first()
     if not basket:
+        session.close()  # Закрываем сессию
         return jsonify({"error": "Корзина не найдена."}), 404
-    print(basket)
-    # Ищем деталь в корзине
     existing_detail = session.query(basket_details).filter_by(basket_id=basket.id, detail_id=detail.id).first()
-    print(existing_detail)
     if existing_detail:
         print("Detail found in basket:", existing_detail)
         session.execute(basket_details.delete().where(
@@ -169,9 +190,11 @@ def remove_from_basket(detail_id):
             (basket_details.c.detail_id == detail.id)
         ))
         session.commit()
+        session.close()  # Закрываем сессию
         return jsonify({"success": "Деталь удалена из корзины."}), 200
     else:
         print("Detail not found in basket.")
+        session.close()  # Закрываем сессию
         return jsonify({"error": "Деталь не найдена в корзине."}), 404
 
 
@@ -179,7 +202,7 @@ def remove_from_basket(detail_id):
 def basket():
     details = []
     total_price = 0
-    total_card_price = 0  # Если у вас есть специальная цена по карте
+    total_card_price = 0
 
     if current_user.is_authenticated:
         session = create_session()
@@ -187,51 +210,45 @@ def basket():
         if basket:
             details = basket.details
             for detail in details:
-                total_price += float(detail.price)  # Предполагается, что price - это строка
-                total_card_price += float(detail.price_w_discount)  # Если есть цена по карте
+                total_price += float(detail.price)
+                total_card_price += float(detail.price_w_discount)
 
-    print(details)
+        session.close()  # Закрываем сессию
     return render_template("basket.html", details=details, total_price=total_price, total_card_price=total_card_price)
 
 
 @app.route("/add_to_basket/<string:num>", methods=["POST"])
 @login_required
 def add_to_basket(num):
-    print("Add catch", num)
     session = create_session()
-
-    # Ищем деталь по номеру
-    detail = session.query(Detail).filter(Detail.ID_detail==num).first()
+    print("Add catch", num)
+    detail = session.query(Detail).filter(Detail.ID_detail == num).first()
     if detail is None:
+        session.close()  # Закрываем сессию
         return jsonify({"error": "Деталь не найдена."}), 404
 
-    # Получаем корзину текущего пользователя
     basket = session.query(Basket).filter_by(user_id=current_user.id).first()
     if not basket:
-        # Если корзины нет, создаем новую
         basket = Basket(user_id=current_user.id)
         session.add(basket)
 
-    # Проверяем, есть ли уже эта деталь в корзине
     existing_detail = session.query(basket_details).filter_by(basket_id=basket.id, detail_id=detail.id).first()
-    if existing_detail:
-        # Если деталь уже есть, увеличиваем количество
-        existing_detail.quantity += 1
-    else:
-        # Если детали нет, добавляем новую запись
+    if not existing_detail:
         new_entry = {
             'basket_id': basket.id,
             'detail_id': detail.id,
         }
-        session.execute(basket_details.insert().values(new_entry))  # Используем insert для добавления
+        session.execute(basket_details.insert().values(new_entry))
 
     try:
         session.commit()
     except Exception as err:
-        session.rollback()  # Откатить изменения в случае ошибки
-        print("Error during commit:", err)  # Отладочное сообщение
-        return jsonify({"error": "Что-то пошло не так."}), 500
+        session.rollback()
+        print("Error during commit:", err)
+        session.close()  # Закрываем сессию
+        return jsonify({"error": "Что-то пошло не так ."}), 500
 
+    session.close()  # Закрываем сессию
     return jsonify({"success": "Деталь добавлена в корзину."}), 200
 
 
@@ -242,12 +259,12 @@ def get_detail(part_number):
     detail_in_basket = False
 
     if current_user.is_authenticated:
-        # Получаем корзину текущего пользователя
-        basket = session.query(Basket).filter_by(user_id=current_user.id).first()
-        if basket and detail in basket.details:
+        user_basket = session.query(Basket).filter_by(user_id=current_user.id).first()
+        if user_basket and detail in user_basket.details:
             detail_in_basket = True
 
     if detail:
+        session.close()  # Закрываем сессию
         return jsonify({
             'id': detail.id,
             'ID_detail': detail.ID_detail,
@@ -260,35 +277,36 @@ def get_detail(part_number):
             'condition': detail.condition,
             'color': detail.color,
             'comment': detail.comment,
-            'photo': detail.photo,
-            'detail_in_basket': detail_in_basket  # Добавляем информацию о корзине
+            'photo': base64.b64encode(detail.photo).decode('utf-8') if detail.photo else None,
+            'detail_in_basket': detail_in_basket
         })
-    else:
-        return jsonify({'error': 'Деталь не найдена'}), 404
+    session.close()  # Закрываем сессию
+    return jsonify({'error': 'Деталь не найдена'}), 404
 
 
 @app.route("/enter_data", methods=["GET", "POST"])
 def enter_data():
     form = RegisterUser()
     if form.validate_on_submit():
-        sess = create_session()
-        user = sess.query(User).filter(User.phone == form.phone.data).first()
+        session = create_session()
+        user = session.query(User).filter(User.phone == form.phone.data).first()
         if not user:
             new_user = User(
                 name=form.name.data,
                 phone=form.phone.data,
                 address=form.address.data
             )
-            sess.add(new_user)
+            session.add(new_user)
+            session.commit()
             flash('Контактные данные успешно добавлены!', 'success')
-
         else:
             user.name = form.name.data
             user.phone = form.phone.data
             user.address = form.address.data
+            session.commit()
             flash('Контактные данные успешно изменены!', 'success')
 
-        sess.commit()
+        session.close()  # Закрываем сессию
     return render_template('enter_data.html', form=form)
 
 
@@ -296,13 +314,13 @@ def enter_data():
 def register():
     form = RegisterUser()
     if form.validate_on_submit():
-        sess = create_session()
+        session = create_session()
         phone = get_number(form.phone.data)
         if not phone:
             return render_template('register.html',
                                    form=form,
                                    message='Неверный формат номера')
-        user = sess.query(User).filter(User.phone == phone).first()
+        user = session.query(User).filter(User.phone == phone).first()
 
         if not user:
             new_user = User(
@@ -311,12 +329,14 @@ def register():
                 address=form.address.data,
                 password=form.password.data
             )
-            sess.add(new_user)
-            sess.commit()
+            session.add(new_user)
+            session.commit()
             login_user(new_user, remember=True)
+            session.close()  # Закрываем сессию
             return redirect('/')
 
         else:
+            session.close()  # Закрываем сессию
             return render_template('register.html',
                                    form=form,
                                    message='Пользователь с таким номером уже зарегистрирован')
@@ -332,41 +352,55 @@ async def meow():
         })
     session = create_session()
     details = session.query(Detail).all()
+    session.close()  # Закрываем сессию
     return render_template('admin.html', details=details)
+
+
+@app.route('/photo/<int:detail_id>', methods=['GET'])
+async def get_photo(detail_id):
+    session = create_session()
+    detail = session.query(Detail).filter(Detail.id == detail_id).first()
+    session.close()  # Закрываем сессию
+
+    if detail and detail.photo:
+        # Преобразуем BLOB в base64
+        image_data = base64.b64encode(detail.photo).decode('utf-8')
+        return image_data  # Возвращаем данные изображения
+    return '', 404  # Если фото нет, возвращаем 404
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginUser()
     if form.validate_on_submit():
-        sess = create_session()
+        session = create_session()
 
-        # Вход в админку
         if form.phone.data.lower() == 'boss':
             if form.password.data == '51974376':
-                print("boss here")
-                user = sess.query(User).filter(User.phone == form.phone.data.lower()).first()
-                print("user found", user)
+                user = session.query(User).filter(User.phone == form.phone.data.lower()).first()
                 login_user(user, remember=True)
-                print("OK")
+                session.close()  # Закрываем сессию
                 return redirect('/admin')
             else:
+                session.close()  # Закрываем сессию
                 return render_template('login.html',
                                        message="Неверный пароль",
                                        form=form)
 
         phone = get_number(form.phone.data)
-
-        user = sess.query(User).filter(User.phone == phone).first()
+        user = session.query(User).filter(User.phone == phone).first()
         if not user:
+            session.close()  # Закрываем сессию
             return render_template('login.html',
                                    message="Пользователь с таким номером не найден",
                                    form=form)
         else:
             if form.password.data == user.password:
                 login_user(user, remember=True)
+                session.close()  # Закрываем сессию
                 return redirect('/')
             else:
+                session.close()  # Закрываем сессию
                 return render_template('login.html',
                                        message='Неверно введён пароль пользователя',
                                        form=form)
@@ -376,26 +410,27 @@ def login():
 
 @app.route("/edit_profile", methods=["GET", "POST"])
 def edit_profile():
-    sess = create_session()
-    user = sess.query(User).get(current_user.id)
+    session = create_session()
+    user = session.query(User).get(current_user.id)
     form = RegisterUser(obj=user)
-    # phone = get_number(form.phone.data)
     if form.validate_on_submit():
-        user = sess.query(User).filter(User.phone == form.phone.data).first()
-
         user.name = form.name.data
         user.address = form.address.data
         user.password = form.password.data
-        sess.commit()
+        session.commit()
+        session.close()  # Закрываем сессию
         return redirect('/')
 
+    session.close()  # Закрываем сессию
     return render_template('edit_user.html', form=form)
 
 
 @login_manager.user_loader
 def load_user(user_id):
-    sess = create_session()
-    return sess.query(User).get(user_id)
+    session = create_session()
+    user = session.get(User, user_id)
+    session.close()  # Закрываем сессию
+    return user
 
 
 @app.route('/logout')

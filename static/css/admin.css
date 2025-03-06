@@ -7,6 +7,7 @@ body {
 
 
 
+
 }
 
 .background-main {
@@ -73,11 +74,25 @@ body {
     top: 0;
     width: 100%; /* Полная ширина */
     height: 100%; /* Полная высота */
-    overflow: none; /* Прокрутка, если необходимо */
+    overflow: auto; /* Прокрутка, если необходимо */
     background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный фон */
 }
 
 .modal-content {
+    background-color: white; /* Фон модального окна */
+    padding: 20px; /* Отступы */
+    margin-left: auto;
+    margin-right: auto;
+    height: auto;
+    border: 3px solid black; /* Граница */
+    width: 30%; /* Ширина модального окна */
+    border-radius: 30px;
+    background-image: url("../img/background.jpeg");
+    background-size: cover; /* Чтобы изображение заполнило весь фон */
+    background-position: center; /* Центрируем изображение */
+}
+
+.modal-content-photo {
     background-color: white; /* Фон модального окна */
     padding: 20px; /* Отступы */
     margin-left: auto;
@@ -111,15 +126,6 @@ body {
     }
 }
 
-.form-container {
-    max-height: 99%; /* Установите максимальную высоту контейнера */
-    overflow-y: auto; /* Добавляем вертикальную прокрутку */
-    padding: 10px; /* Отступы внутри контейнера */
-    border: 1px solid #ddd; /* Граница для визуального отделения */
-    border-radius: 5px; /* Закругленные углы */
-    background-color: #f9f9f9; /* Цвет фона контейнера */
-}
-
 .form-row {
     display: flex; /* Используем Flexbox для размещения колонн */
     justify-content : space-between; /* Распределяем пространство между колоннами */
@@ -133,20 +139,4 @@ body {
 
 .form-group:last-child {
     margin-right: 0; /* Убираем отступ у последней группы */
-}
-
-.modal-content {
-    background-color: white; /* Фон модального окна */
-    padding: 20px; /* Отступы */
-    margin-left: auto;
-    margin-right: auto;
-    height: auto; /* Убираем фиксированную высоту */
-    max-height: 99%; /* Устанавливаем максимальную высоту (99% от высоты экрана) */
-    overflow-y: auto; /* Добавляем вертикальную прокрутку */
-    border: 3px solid black; /* Граница */
-    width: 30%; /* Ширина модального окна */
-    border-radius: 30px;
-    background-image: url("../img/background.jpeg");
-    background-size: cover; /* Чтобы изображение заполнило весь фон */
-    background-position: center; /* Центрируем изображение */
 }

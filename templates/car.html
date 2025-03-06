@@ -1,35 +1,140 @@
-{% extends "base.html" %}
-
-{% block styles %}
-<link rel="stylesheet" href="../../static/css/car.css">
-{% endblock %}
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap" rel="stylesheet">
+    {% extends "base.html" %}
+    {% block styles %}
+    <link rel="stylesheet" href="../../static/css/car.css">
+    {% endblock %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
 
 {% block content %}
 <div id="menu" class="menu">
     <a href="./">На главную</a>
     <a href="./contacts">Контакты</a>
+    <a href="./guarantees">Гарантии</a>
     <a href="#" onclick="toggleMenu()">Закрыть меню</a>
 </div>
-    <h1>Детали для автомобиля: {{ products[0].brand if products else 'Нет данных' }}</h1>
-    <div class="product-container">
-        {% for product in products %}
-        <div class="product-card">
-            {% if product.photo %}
-            <img src="data:image/jpeg;base64,{{ product.photo }}" alt="{{ product.name }}" class="product-image">
+
+<div class="brand-container">
+    <h3 class="brand-header">
+        <span class="brand">
+            {% if products %}
+                {{ products[0].brand }}
             {% else %}
-            <p>Изображение недоступно</p>
+                Детали для данной марки не найдены
             {% endif %}
-            <div class="product-info">
-                <h2 class="product-title">{{ product.name }}</h2>
-                <p class="product-description">{{ product.comment }}</p>
-                <div class="product-price">
-                    <span class="current-price">{{ product.price }} ₽</span>
-                    {% if product.price_w_discount %}
-                        <span class="old-price">{{ product.price_w_discount }} ₽</span>
-                    {% endif %}
-                </div>
-            </div>
+        </span>
+    </h3>
+    <br>
+</div>
+
+<h3>
+    <span class="details">
+        {% if products %}
+            Найдено деталей: {{ products|length }}
+        {% endif %}
+    </span>
+</h3>
+
+<div class="product-container">
+    {% for product in products %}
+    <div class="product-card">
+        <div class="image-container">
+            {% if product.photo %}
+            <a href="#" onclick="getDetail('{{ product.ID_detail }}')">
+                <img src="data:image/jpg;base64,{{ product.photo }}"
+                     alt="{{ product.name }}"
+                     class="product-image">
+            </a>
+            {% else %}
+            <p class="no-image">Изображение недоступно</p>
+            {% endif %}
         </div>
-        {% endfor %}
+
+        <div class="product-info">
+            <h2 class="product-title">{{ product.name }}</h2>
+            <p class="product-description">{{ product.comment }}</p>
+
+            <div class="product-price">
+                <span class="current-price">{{ product.price }} ₽</span>
+                {% if product.price_w_discount %}
+                <span class="old-price">{{ product.price_w_discount }} ₽</span>
+                {% endif %}
+            </div>
+
+            <button onclick="addToCart('{{ product.ID_detail }}')" class="add-to-cart">
+                Добавить в корзину
+            </button>
+        </div>
     </div>
+    {% endfor %}
+</div>
+
+<div id="detail-modal" class="modal-overlay">
+    <div class="modal-content">
+        <button onclick="closeDetail()" class="close-button">×</button>
+        <img src="" alt="" class="modal-image" id="modal-image">
+        <div class="modal-details"></div>
+    </div>
+</div>
+
+<script>
+    function getDetail(partNumber) {
+        fetch(`/get_detail/${partNumber}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Деталь не найдена');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Заполняем модальное окно данными
+                document.getElementById('modal-image').src = `data:image/jpg;base64,${data.photo}`;
+                document.querySelector('.modal-details').innerHTML = `
+                    <h2>${data.name}</h2>
+                    <p>Артикул: ${data.orig_number}</p>
+                    <p>Бренд: ${data.brand}</p>
+                    <p>Модель и год: ${data.model_and_year}</p>
+                    <p>Цена: ${data.price} ₽</p>
+                    ${data.price_w_discount ? `<p>Старая цена: ${data.price_w_discount} ₽</p>` : ''}
+                    <p>Состояние: ${data.condition}</p>
+                    <p>Цвет: ${data.color}</p>
+                    <p>Комментарий: ${data.comment}</p>
+                    <button onclick="addToCart('${data.ID_detail}')" class="add-to-cart">Добавить в корзину</button>
+                `;
+
+                // Показываем модальное окно
+                document.getElementById('detail-modal').style.display = 'flex';
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert(error.message);
+            });
+    }
+
+    // Функция для закрытия модального окна
+    function closeDetail() {
+        document.getElementById('detail-modal').style.display = 'none';
+    }
+
+    function addToCart(productId) {
+        fetch(`/add_to_basket/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ product_id: productId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Товар добавлен в корзину');
+            } else {
+                alert('Ошибка при добавлении товара в корзину');
+            }
+        });
+    }
+</script>
+
 {% endblock %}

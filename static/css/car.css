@@ -1,3 +1,4 @@
+
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
@@ -60,3 +61,80 @@ body {
     text-decoration: line-through;
     color: #999; /* Цвет для старой цены */
 }
+
+
+.brand-container {
+    display: flex; /* Используем Flexbox */
+    justify-content: center; /* Центрируем содержимое по горизонтали */
+    width: 100%; /* Занимаем всю ширину страницы */
+}
+
+.brand-header {
+    display: flex; /* Используем Flexbox для заголовка */
+    justify-content: space-between; /* Распределяем пространство между элементами */
+    align-items: center; /* Выравниваем элементы по центру по вертикали */
+    font-size: 24px; /* Размер шрифта */
+    color: #333; /* Цвет текста */
+    margin: 20px 0; /* Отступы сверху и снизу */
+    padding: 10px; /* Внутренние отступы */
+    background-color: #d9d9d9; /* Цвет фона */
+    border: 1px solid #ccc; /* Рамка */
+    border-radius: 5px; /* Закругление углов */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Тень */
+    font-family: 'Roboto', sans-serif; /* Шрифт */
+    width: 100%; /* Занимаем всю ширину контейнера */
+}
+
+.brand {
+    flex-grow: 1; /* Позволяет этому элементу занимать доступное пространство */
+    text-align: center; /* Центрируем текст */
+}
+
+
+.details {
+    display: block; /* Делаем элемент блочным, чтобы он занимал всю ширину */
+    text-align: left; /* Выравниваем текст вправо */
+    font-size: 19px; /* Увеличиваем размер шрифта */
+    color: #333; /* Устанавливаем цвет текста */
+    margin-top: -1%;
+    margin-left: 90%;
+    padding: 10px; /* Добавляем внутренние отступы */
+    border: 1px solid #ccc; /* Устанавливаем цвет рамки */
+    border-radius: 8px; /* Закругляем углы рамки */
+    background-color: #f9f9f9; /* Устанавливаем цвет фона */
+    font-family: 'Roboto', sans-serif; /* Используем шрифт Roboto */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Тень */
+    width: 9%;
+
+}
+
+.image-container {
+    position: relative; /* Позволяет позиционировать кнопку относительно изображения */
+}
+
+.product-image {
+    width: 100%; /* Устанавливаем ширину изображения */
+    height: auto; /* Сохраняем пропорции изображения */
+    border-radius: 8px; /* Закругляем углы изображения */
+}
+
+.view-photo-button {
+    position: absolute; /* Позволяет позиционировать кнопку над изображением */
+    top: 10px; /* Расположение кнопки сверху */
+    left: 50%; /* Центрируем кнопку по горизонтали */
+    transform: translateX(-50%); /* Центрируем кнопку */
+    background-color: #007bff; /* Цвет фона кнопки */
+    color: white; /* Цвет текста кнопки */
+    padding: 10px 20px; /* Внутренние отступы кнопки */
+    border: none; /* Убираем рамку */
+    border-radius: 5px; /* Закругляем углы кнопки */
+    font-family: 'Roboto', sans-serif; /* Шрифт кнопки */
+    font-size: 16px; /* Размер шрифта кнопки */
+    text-decoration: none; /* Убираем подчеркивание */
+    transition: background-color 0.3s; /* Плавный переход цвета фона */
+}
+
+.view-photo-button:hover {
+    background-color: #0056b3; /* Цвет фона при наведении */
+}
+
