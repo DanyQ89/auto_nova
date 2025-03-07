@@ -21,6 +21,17 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     baskets = relationship("Basket", back_populates="user")
 
 
+class Photo(SqlAlchemyBase, SerializerMixin):
+    __tablename__ = 'photos'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    detail_id = Column(Integer, ForeignKey('details.id'))
+    photo = Column(BLOB)
+
+    # Обратная связь с моделью Detail
+    detail = relationship("Detail", back_populates="photos")
+
+
 class Detail(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'details'
 
@@ -39,11 +50,13 @@ class Detail(SqlAlchemyBase, SerializerMixin):
     percent = Column(Integer)
     CpK = Column(String)
     color = Column(String)
-    photo = Column(BLOB)
     data_created = Column(Date, default=datetime.date.today())
 
     # Связь с корзинами
     baskets = relationship("Basket", secondary="basket_details", back_populates="details")
+
+    # Связь с фотографиями
+    photos = relationship("Photo", back_populates="detail")
 
 
 # Ассоциативная таблица для связи между Basket и Detail

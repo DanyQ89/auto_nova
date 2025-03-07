@@ -67,15 +67,15 @@
             <td>{{ detail.percent }}</td> <!-- Новый столбец -->
             <td>{{ detail.CpK }}</td> <!-- Новый столбец -->
             <td>
-                {% if detail.photo %}
+                {% if detail.photos %}
                 <button class="view-photo-button" onclick="fetchPhoto('{{ detail.id }}')">Просмотреть фото</button>
                 {% else %}
                 Нет фото
                 {% endif %}
             </td>
             <td>
-                <button class="view-photo-button" onclick="document.getElementById('file-input').click()">Обновить фото</button>
-<input type="file" id="file-input" style="display:none;" onchange="uploadFile('{{ detail.ID_detail }}')">
+                <button class="add-photo-button" onclick="document.getElementById('file-input-{{ detail.id }}').click()">Добавить фото</button>
+                <input type="file" id="file-input-{{ detail.id }}" style="display:none;" onchange="uploadPhoto('{{ detail.id }}')">
             </td>
         </tr>
         {% endfor %}
@@ -192,7 +192,7 @@
 <div id="photoModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closePhotoModal()">&times;</span>
-        <img id="modalImage" src="" alt="Фото детали" style="width: auto; height: auto;">
+        <div class="photo-container"></div> <!-- Контейнер для фотографий -->
     </div>
 </div>
 

@@ -138,3 +138,53 @@ body {
     background-color: #0056b3; /* Цвет фона при наведении */
 }
 
+.slider-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.slider {
+    display: flex;
+    overflow: hidden;
+    width: 100%;
+}
+
+.slider-photo {
+    display: none;
+    width: 100%;
+    transition: opacity 0.5s ease;
+}
+
+.slider-photo.active {
+    display: block;
+}
+
+.slider-arrow {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+}
+
+.left-arrow {
+    left: 10px;
+}
+
+.right-arrow {
+    right: 10px;
+}
+
+.product-image {
+    width: 100%;
+    height: auto;
+}

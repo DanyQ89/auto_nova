@@ -1,10 +1,12 @@
 from flask import Flask, render_template, make_response, jsonify, flash, redirect, request
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
+from sqlalchemy.orm import joinedload
+
 from utils.config import secret_key
 from utils.help_functions import get_number
 from forms.user import RegisterUser, LoginUser
 from data.database import create_session, global_init
-from data.users import User, Detail, Basket, basket_details
+from data.users import User, Detail, Basket, basket_details, Photo
 import base64
 
 app = Flask(__name__)
@@ -33,41 +35,88 @@ def contacts():
 def get_thing_by_number():
     return render_template("get_thing_by_number.html")
 
-@app.route('/add_photo', methods=['POST'])
-def add_photo():
-    print("catch add photo", request.form.get('detail_id'))
-    detail_id = request.form.get('detail_id')
-    if 'file' not in request.files:
-        return {'status': 'error', 'message': 'Нет файла для загрузки'}, 400
-    file = request.files['file']
-    session = create_session()
-    detail = session.query(Detail).filter(Detail.ID_detail == detail_id).first()
-    print(detail)
-    if detail and file:
-        detail.photo = file.read()
-        session.commit()
-        session.close()
-        return {'status': 'success', 'message': 'Фото обновлено успешно!'}, 200
-    else:
-        session.close()
-        return {'status': 'error', 'message': 'Деталь не найдена'}, 404
-
 
 @app.route('/<car_name>')
 def show_car(car_name):
     session = create_session()
     details = session.query(Detail).filter(Detail.brand.ilike(car_name)).all()
 
-    # Декодируем изображения в base64
+    # Декодируем все изображения в base64
     for detail in details:
-        if detail.photo:
-            detail.photo = base64.b64encode(detail.photo).decode('utf-8')
-
-    for detail in details:
-        print(detail.name, detail.brand, detail.price)
+        if detail.photos:
+            # Получаем все фото и кодируем их в base64
+            encoded_photos = []
+            for photo in detail.photos:
+                if photo.photo:  # Проверяем, что фото существует
+                    encoded_photos.append(base64.b64encode(photo.photo).decode('utf-8'))
+            detail.encoded_photos = encoded_photos  # Сохраняем список закодированных изображений
+        else:
+            detail.encoded_photos = []  # Если нет фотографий, устанавливаем пустой список
 
     session.close()  # Закрываем сессию
     return render_template('car.html', products=details)
+
+
+@app.route('/edit_photo/<int:photo_id>', methods=['PUT'])
+def edit_photo(photo_id):
+    session = create_session()
+    photo = session.query(Photo).filter(Photo.id == photo_id).first()
+
+    if not photo:
+        session.close()
+        return {'status': 'error', 'message': 'Фото не найдено'}, 404
+
+    if 'file' not in request.files:
+        session.close()
+        return {'status': 'error', 'message': 'Нет файла для загрузки'}, 400
+
+    file = request.files.get('file')
+    if file:
+        photo.photo = file.read()
+        session.commit()
+        session.close()
+        return {'status': 'success', 'message': 'Фото успешно обновлено!'}, 200
+    else:
+        session.close()
+        return {'status': 'error', 'message': 'Файл отсутствует'}, 400
+
+
+@app.route('/delete_photo/<int:photo_id>', methods=['DELETE'])
+def delete_photo(photo_id):
+    session = create_session()
+    photo = session.query(Photo).filter(Photo.id == photo_id).first()
+
+    if not photo:
+        session.close()
+        return {'status': 'error', 'message': 'Фото не найдено'}, 404
+
+    session.delete(photo)
+    session.commit()
+    session.close()
+    return {'status': 'success', 'message': 'Фото успешно удалено!'}, 200
+
+
+@app.route('/add_photo', methods=['POST'])
+def add_photo():
+    print("catch add photo", request.form.get('detail_id'))
+    detail_id = request.form.get('detail_id')
+    if 'file' not in request.files:
+        return {'status': 'error', 'message': 'Нет файла для загрузки'}, 400
+
+    file = request.files.get('file')  # Получаем один файл
+    session = create_session()
+    detail = session.query(Detail).filter(Detail.id == detail_id).first()
+
+    if detail and file:
+        new_photo = Photo(detail_id=detail.id, photo=file.read())
+        print("Ok")
+        session.add(new_photo)
+        session.commit()
+        session.close()
+        return {'status': 'success', 'message': 'Фото обновлено успешно!'}, 200
+    else:
+        session.close()
+        return {'status': 'error', 'message': 'Деталь не найдена или файл отсутствует'}, 404
 
 
 @app.route('/update_detail/<int:detail_id>', methods=['GET'])
@@ -103,6 +152,7 @@ def update_detail(detail_id):
 @app.route('/add_detail', methods=['POST'])
 async def add_detail():
     session = create_session()
+    print(request.form)
     if request.form['id'] == '':
         new_detail = Detail(
             creator_id=request.form['creator_id'],
@@ -121,12 +171,12 @@ async def add_detail():
             color=request.form.get('color', ''),
         )
 
-        # Обработка загрузки файла
+        # Обработка загрузки файлов
         photo = request.files.get('photo')
         if photo:
-            new_detail.photo = photo.read()  # Сохраняем содержимое файла в поле BLOB
+            new_photo = Photo(detail=new_detail, photo=photo.read())
+            session.add(new_photo)
 
-        # Добавляем новую деталь в сессию и сохраняем изменения
         session.add(new_detail)
         session.commit()
         flash('Деталь успешно добавлена!', 'success')
@@ -137,10 +187,10 @@ async def add_detail():
 
         if not detail:
             flash('Деталь не найдена!', 'error')
-            session.close()  # Закрываем сессию
+            session.close()
             return redirect('/admin')
 
-        # Обновляем поля детали на основе данных из request.form
+        # Обновляем поля детали
         detail.creator_id = request.form.get('creator_id', detail.creator_id)
         detail.sklad = request.form.get('sklad', detail.sklad)
         detail.ID_detail = request.form.get('ID_detail', detail.ID_detail)
@@ -156,19 +206,16 @@ async def add_detail():
         detail.CpK = request.form.get('CpK', detail.CpK)
         detail.color = request.form.get('color', detail.color)
 
-        # res = get_photo(request)
-        # if res:
-        #     detail.photo = get_photo(request)
-
-
+        # Обработка загрузки файлов
         photo = request.files.get('photo')
         if photo:
-            detail.photo = photo.read()  # Сохраняем содержимое файла в поле BLOB
+            new_photo = Photo(detail_id=detail.id, photo=photo.read())
+            session.add(new_photo)
 
         session.commit()
         flash('Деталь успешно обновлена!', 'success')
 
-    session.close()  # Закрываем сессию
+    session.close()
     return redirect('/admin')
 
 
@@ -184,7 +231,6 @@ def remove_from_basket(detail_id):
         return jsonify({"error": "Корзина не найдена."}), 404
     existing_detail = session.query(basket_details).filter_by(basket_id=basket.id, detail_id=detail.id).first()
     if existing_detail:
-        print("Detail found in basket:", existing_detail)
         session.execute(basket_details.delete().where(
             (basket_details.c.basket_id == basket.id) &
             (basket_details.c.detail_id == detail.id)
@@ -233,7 +279,9 @@ def add_to_basket(num):
         session.add(basket)
 
     existing_detail = session.query(basket_details).filter_by(basket_id=basket.id, detail_id=detail.id).first()
-    if not existing_detail:
+    if existing_detail:
+        existing_detail.quantity += 1
+    else:
         new_entry = {
             'basket_id': basket.id,
             'detail_id': detail.id,
@@ -264,7 +312,11 @@ def get_detail(part_number):
             detail_in_basket = True
 
     if detail:
-        session.close()  # Закрываем сессию
+        # Получаем первое фото, если оно существует
+        first_photo = detail.photos[0].photo if detail.photos else None
+        photo_data = base64.b64encode(first_photo).decode('utf-8') if first_photo else 0
+
+        session.close()
         return jsonify({
             'id': detail.id,
             'ID_detail': detail.ID_detail,
@@ -277,9 +329,10 @@ def get_detail(part_number):
             'condition': detail.condition,
             'color': detail.color,
             'comment': detail.comment,
-            'photo': base64.b64encode(detail.photo).decode('utf-8') if detail.photo else None,
+            'photo': photo_data,  # Возвращаем закодированное изображение или 0
             'detail_in_basket': detail_in_basket
         })
+
     session.close()  # Закрываем сессию
     return jsonify({'error': 'Деталь не найдена'}), 404
 
@@ -350,23 +403,32 @@ async def meow():
             "error": 777,
             "message": "you don`t have the rights for this action"
         })
+
     session = create_session()
-    details = session.query(Detail).all()
+    # Используем joinedload для предварительной загрузки фотографий
+    details = session.query(Detail).options(joinedload(Detail.photos)).all()
     session.close()  # Закрываем сессию
     return render_template('admin.html', details=details)
 
 
 @app.route('/photo/<int:detail_id>', methods=['GET'])
-async def get_photo(detail_id):
+def get_photo(detail_id):
     session = create_session()
-    detail = session.query(Detail).filter(Detail.id == detail_id).first()
-    session.close()  # Закрываем сессию
+    print("catch photo", detail_id)
+    try:
+        detail = session.query(Detail).filter(Detail.id == detail_id).first()
 
-    if detail and detail.photo:
-        # Преобразуем BLOB в base64
-        image_data = base64.b64encode(detail.photo).decode('utf-8')
-        return image_data  # Возвращаем данные изображения
-    return '', 404  # Если фото нет, возвращаем 404
+        if detail and detail.photos:
+            image_data = [
+                base64.b64encode(photo.photo).decode('utf-8')
+                for photo in detail.photos if photo.photo
+            ]
+            return jsonify(image_data), 200
+        return jsonify([]), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        session.close()
 
 
 @app.route("/login", methods=["GET", "POST"])

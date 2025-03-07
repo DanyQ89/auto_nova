@@ -41,12 +41,20 @@
     {% for product in products %}
     <div class="product-card">
         <div class="image-container">
-            {% if product.photo %}
-            <a href="#" onclick="getDetail('{{ product.ID_detail }}')">
-                <img src="data:image/jpg;base64,{{ product.photo }}"
-                     alt="{{ product.name }}"
-                     class="product-image">
-            </a>
+            {% if product.encoded_photos %}
+            <div class="slider-container">
+                <button class="slider-arrow left-arrow" onclick="changePhoto(-1, {{ loop.index0 }})">&#10094;</button>
+                <div class="slider">
+                    {% for photo in product.encoded_photos %}
+                    <a href="#" onclick="getDetail('{{ product.ID_detail }}')">
+                        <img src="data:image/jpg;base64,{{ photo }}"
+                             alt="{{ product.name }}"
+                             class="product-image slider-photo">
+                    </a>
+                    {% endfor %}
+                </div>
+                <button class="slider-arrow right-arrow" onclick="changePhoto(1, {{ loop.index0 }})">&#10095;</button>
+            </div>
             {% else %}
             <p class="no-image">Изображение недоступно</p>
             {% endif %}
@@ -57,9 +65,9 @@
             <p class="product-description">{{ product.comment }}</p>
 
             <div class="product-price">
-                <span class="current-price">{{ product.price }} ₽</span>
+                <span class="old-price">{{ product.price }} ₽</span>
                 {% if product.price_w_discount %}
-                <span class="old-price">{{ product.price_w_discount }} ₽</span>
+                <span class="current-price">{{ product.price_w_discount }} ₽</span>
                 {% endif %}
             </div>
 
@@ -135,6 +143,51 @@
             }
         });
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const sliders = document.querySelectorAll('.slider');
+        sliders.forEach((slider, index) => {
+            const photos = slider.querySelectorAll('.slider-photo');
+            if (photos.length > 0) {
+                photos[0].classList.add('active'); // Показываем первую фотографию
+            }
+        });
+    });
+
+    function changePhoto(direction, sliderIndex) {
+        const slider = document.querySelectorAll('.slider')[sliderIndex];
+        if (!slider) {
+            alert('Slider not found');
+            return;
+        }
+
+        const photos = slider.querySelectorAll('.slider-photo');
+        if (photos.length === 0) {
+            alert('No photos found');
+            return;
+        }
+
+        let activeIndex = -1;
+
+        // Находим индекс активной фотографии
+        photos.forEach((photo, index) => {
+            if (photo.classList.contains('active')) {
+                activeIndex = index;
+                photo.classList.remove('active');
+            }
+        });
+
+        // Вычисляем новый индекс
+        let newIndex = activeIndex + direction;
+        if (newIndex < 0) {
+            newIndex = photos.length - 1; // Переход к последней фотографии
+        } else if (newIndex >= photos.length) {
+            newIndex = 0; // Переход к первой фотографии
+        }
+
+        // Показываем новую фотографию
+        photos[newIndex].classList.add('active');
+}
 </script>
 
 {% endblock %}
