@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% extends "base.html" %}
-    {% block styles %}
-    <link rel="stylesheet" href="../static/css/basket.css"> <!-- Подключаем CSS для блока content -->
-    {% endblock %}
+<!--    <link rel="stylesheet" href="../static/css/basket.css"> &lt;!&ndash; Подключаем CSS для блока content &ndash;&gt;-->
     <title>Корзина</title>
+    <link rel="stylesheet" href="../static/css/admin.css"> <!-- Подключаем CSS для блока content -->
+    {% extends "base.html" %}
+
 <!--    <link rel="stylesheet" href="../static/css/basket.css">-->
 </head>
 <body>
@@ -18,9 +18,13 @@
         <a href="./guarantees">Гарантии</a>
         <a href="#" onclick="toggleMenu()">Закрыть меню</a>
     </div>
-    <h1>Корзина</h1>
+    <div class="admin-container">
 
-    <table>
+    <header class="admin-header background-main">
+        <h1>Корзина</h1>
+    </header>
+
+    <table class="admin-table">
         <thead>
             <tr>
                 <th>Артикул</th>
@@ -116,5 +120,7 @@
         }, true);
     </script>
 {% endblock %}
+
+    </div>
 </body>
 </html>
