@@ -2,12 +2,8 @@ body {
     font-family: Arial, sans-serif;
     background-color: white;
     color: black;
-    margin: 0;
     padding: 20px;
-
-
-
-
+    margin: 0;
 }
 
 .background-main {
@@ -18,15 +14,17 @@ body {
 
 .admin-container {
     width: 100%; /* Устанавливаем ширину контейнера на 100% */
-    margin: auto;
 }
 
 .admin-header {
-    width: auto; /* Устанавливаем ширину заголовка на 100% */
+    width: 100%; /* Устанавливаем ширину заголовка на 100% */
     display: flex;
     align-items: center;
-    background-color: #f0f0f0; /* Добавляем фон для заголовка */
     text-align: center;
+    background-color: #f0f0f0; /* Добавляем фон для заголовка */
+    justify-content: space-between;
+    position:relative;
+    flex-wrap:wrap;
 }
 
 .admin-button {
@@ -42,6 +40,12 @@ body {
     transition: background-color 0.2s; /* Плавный переход для фона */
     min-width: 150px; /* Минимальная ширина кнопки */
     width: 17%;
+}
+
+.admin-header h1 {
+    margin-left: 1rem;
+    white-space: nowrap; /* Запрет переноса текста */
+
 }
 
 .admin-button:hover {
