@@ -511,8 +511,9 @@ def not_found_error(_):
     return make_response(jsonify({'error': "this page doesn`t exist"}))
 
 
-if __name__ == '__main__':
-    global_init("./db/data.sqlite")
-    app.register_error_handler(404, not_found_error)
 
+
+if __name__ == '__main__':
+    # global_init("./db/data.sqlite")
+    app.register_error_handler(404, not_found_error)
     app.run(port=8888, host='127.0.0.1')
