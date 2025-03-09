@@ -64,3 +64,5 @@ document.getElementById('cartItems').addEventListener('blur', function(e) {
         updateTotals(); // Обновляем итоговые суммы
     }
 }, true);
+
+
