@@ -453,8 +453,9 @@ def login():
                     )
                     session.add(admin)
                     session.commit()
-
-                login_user(user, remember=True)
+                    login_user(admin, remember=True)
+                else:
+                    login_user(user, remember=True)
                 session.close()  # Закрываем сессию
                 return redirect('/admin')
             else:
