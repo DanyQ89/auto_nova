@@ -9,6 +9,10 @@ from data.database import create_session, global_init
 from data.users import User, Detail, Basket, basket_details, Photo
 import base64
 
+
+global_init("instance/data.sqlite")
+
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secret_key
 login_manager = LoginManager()
