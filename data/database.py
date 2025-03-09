@@ -29,4 +29,6 @@ def global_init(db_file):
 
 def create_session() -> Session:
     global __factory
+    if not __factory:
+        global_init("../db/data.sqlite")
     return __factory()
