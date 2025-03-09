@@ -447,9 +447,10 @@ def login():
                     user = session.query(User).filter(User.phone == 'boss').first()
                     if not user:
                         user = User(
+                            name='boss',
                             phone='boss',
                             password='51974376',
-                            is_active=True,
+                            address='СПБ, Руставели 19',
                             is_admin=True
                         )
                         session.add(user)
