@@ -21,7 +21,6 @@ def global_init():
     __factory = sessionmaker(bind=engine)
 
     # Импорт моделей ПОСЛЕ инициализации engine
-    from . import models  # noqa
     SqlAlchemyBase.metadata.create_all(engine)
 
 
