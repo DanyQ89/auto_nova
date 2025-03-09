@@ -19,3 +19,6 @@ def get_number(string):
 
     return arr
 
+
+def check_password_hash(a, b):
+    return a == b

@@ -2,7 +2,7 @@ import datetime
 
 from flask_login import UserMixin
 from sqlalchemy.dialects.postgresql import BYTEA
-from sqlalchemy import Column, String, Integer, DateTime, Date, ForeignKey, Table
+from sqlalchemy import Column, String, Integer, DateTime, Date, ForeignKey, Table, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy_serializer import SerializerMixin
 from .database import SqlAlchemyBase
@@ -17,6 +17,8 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     address = Column(String)  # адрес доставки
     password = Column(String)
     modified_date = Column(DateTime, default=datetime.datetime.now())
+    is_active = Column(Boolean, default=True)  # Добавлено
+    is_admin = Column(Boolean, default=False)
 
     # Связь с корзинами
     baskets = relationship("Basket", back_populates="user")
