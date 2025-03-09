@@ -1,7 +1,8 @@
 import datetime
 
 from flask_login import UserMixin
-from sqlalchemy import Column, String, Integer, DateTime, BLOB, Date, ForeignKey, Table
+from sqlalchemy.dialects.postgresql import BYTEA
+from sqlalchemy import Column, String, Integer, DateTime, Date, ForeignKey, Table
 from sqlalchemy.orm import relationship
 from sqlalchemy_serializer import SerializerMixin
 from .database import SqlAlchemyBase
@@ -26,7 +27,7 @@ class Photo(SqlAlchemyBase, SerializerMixin):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     detail_id = Column(Integer, ForeignKey('details.id'))
-    photo = Column(BLOB)
+    photo = Column(BYTEA)
 
     # Обратная связь с моделью Detail
     detail = relationship("Detail", back_populates="photos")
