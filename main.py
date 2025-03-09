@@ -10,7 +10,7 @@ from data.users import User, Detail, Basket, basket_details, Photo
 import base64
 
 
-global_init("instance/data.sqlite")
+global_init()
 
 
 app = Flask(__name__)
