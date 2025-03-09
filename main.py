@@ -511,32 +511,4 @@ if __name__ == '__main__':
     global_init("./db/data.sqlite")
     app.register_error_handler(404, not_found_error)
 
-    app.run(port=8888, host='127.0.0.1', debug=True)
-
-
-#
-# .admin-table th, .admin-table td {
-#     border: 1px solid #ddd; /* Граница для ячеек */
-#     padding: 8px; /* Отступы для ячеек */
-#     text-align: left; /* Выравнивание текста в ячейках */
-#     word-break: break-word;
-#     hyphens: auto; /* Перенос слов с дефисами */
-#     font-size: 1rem; /* Базовый размер от корневого элемента */
-#     min-width: 80px; /* Уменьшенная минимальная ширина */
-#     line-height: 1.4; /* Улучшенный межстрочный интервал */
-#     width: 1%; /* Магическое число для автораспределения */
-#     box-sizing: border-box; /* Учитываем
-# }
-
-# .admin-table {
-#     background-color: #fff; /* Добавляем фон для заголовка */
-#     width: 100%; /* Устанавливаем ширину таблицы на 100% */
-#     table-layout: fixed; /* Автоматическая ширина столбцов */
-#     margin-top: 0;
-#     border-collapse: collapse; /* Убираем двойные границы */
-#     overflow-x: auto;
-#     display: block;
-#     box-shadow: 0 2px 15px rgba(0,0,0,0.1); /* Нежная тень */
-#     border-radius: 10px; /* Закругленные углы */
-#
-# }
+    app.run(port=8888, host='127.0.0.1')
