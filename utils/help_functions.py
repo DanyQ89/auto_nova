@@ -18,7 +18,3 @@ def get_number(string):
     arr = f'+7{arr[1:11]}'
 
     return arr
-
-
-def check_password_hash(a, b):
-    return a == b

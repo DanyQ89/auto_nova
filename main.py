@@ -3,7 +3,7 @@ from flask_login import LoginManager, login_user, current_user, login_required, 
 from sqlalchemy.orm import joinedload
 
 from utils.config import secret_key
-from utils.help_functions import get_number, check_password_hash
+from utils.help_functions import get_number
 from forms.user import RegisterUser, LoginUser
 from data.database import create_session, global_init
 from data.users import User, Detail, Basket, basket_details, Photo
@@ -440,52 +440,46 @@ def login():
     form = LoginUser()
     if form.validate_on_submit():
         session = create_session()
-        try:
-            # Логика для boss
-            if form.phone.data.lower() == 'boss':
-                if form.password.data == '51974376':
-                    user = session.query(User).filter(User.phone == 'boss').first()
-                    if not user:
-                        user = User(
-                            name='boss',
-                            phone='boss',
-                            password='51974376',
-                            address='СПБ, Руставели 19',
-                            is_admin=True
-                        )
-                        session.add(user)
-                        session.commit()
-                    login_user(user, remember=True)
-                    return redirect('/admin')
-                else:
-                    return render_template('login.html',
-                                           message="Неверный пароль",
-                                           form=form)
 
-            # Логика для обычных пользователей
-            phone = get_number(form.phone.data)
-            if not phone:
-                return render_template('login.html',
-                                       message="Неверный формат номера",
-                                       form=form)
+        if form.phone.data.lower() == 'boss':
+            if form.password.data == '51974376':
+                user = session.query(User).filter(User.phone == form.phone.data.lower()).first()
+                if not user:
+                    admin = User(
+                        name='BOSS',
+                        phone='boss',
+                        address='СПБ',
+                        password='51974376'
+                    )
+                    session.add(admin)
+                    session.commit()
 
-            user = session.query(User).filter(User.phone == phone).first()
-
-            if not user or not user.is_active:  # Проверка is_active
-                return render_template('login.html',
-                                       message="Пользователь не найден или деактивирован",
-                                       form=form)
-
-            if not check_password_hash(user.password, form.password.data):
+                login_user(user, remember=True)
+                session.close()  # Закрываем сессию
+                return redirect('/admin')
+            else:
+                session.close()  # Закрываем сессию
                 return render_template('login.html',
                                        message="Неверный пароль",
                                        form=form)
 
-            login_user(user, remember=True)
-            return redirect('/')
-
-        finally:
-            session.close()
+        phone = get_number(form.phone.data)
+        user = session.query(User).filter(User.phone == phone).first()
+        if not user:
+            session.close()  # Закрываем сессию
+            return render_template('login.html',
+                                   message="Пользователь с таким номером не найден",
+                                   form=form)
+        else:
+            if form.password.data == user.password:
+                login_user(user, remember=True)
+                session.close()  # Закрываем сессию
+                return redirect('/')
+            else:
+                session.close()  # Закрываем сессию
+                return render_template('login.html',
+                                       message='Неверно введён пароль пользователя',
+                                       form=form)
 
     return render_template('login.html', form=form)
 
