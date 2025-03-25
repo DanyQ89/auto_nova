@@ -4,9 +4,7 @@ body {
     color: black;
     margin: 0;
     padding: 20px;
-
-
-
+    font-family: 'Roboto'; /* Используем шрифт Roboto для всего тела */
 
 }
 
@@ -22,6 +20,8 @@ body {
 }
 
 .admin-header {
+    padding: 15px 20px; /* Добавляем внутренние отступы */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Небольшая
     width: auto; /* Устанавливаем ширину заголовка на 100% */
     display: flex;
     align-items: center;
@@ -48,18 +48,70 @@ body {
     background-color: #222; /* Более светлый цвет фона при наведении */
 }
 
+
+
+
 .admin-table {
-    background-color: #fff; /* Добавляем фон для заголовка */
+    background-color: #f9f9f9; /* Нежный бежевый фон для таблицы */
     width: 100%; /* Устанавливаем ширину таблицы на 100% */
-    table-layout: auto; /* Автоматическая ширина столбцов */
+    table-layout: fixed; /* Автоматическая ширина столбцов */
     border-collapse: collapse; /* Убираем двойные границы */
+    overflow-x: auto;
+    display: block;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Легкая тень для таблицы */
+    border-radius: 10px; /* Закругленные углы */
+}
+
+.admin-table th {
+    width: 1%;
+    background: rgba(111, 78, 55, 1); /* Матовый фон для заголовков */
+    color: #d9a778; /* Белый цвет текста заголовков */
+    padding: 15px; /* Отступы для заголовков */
+    text-align: left; /* Выравнивание текста в заголовках */
+    font-size: 1.1rem; /* Размер шрифта заголовков */
+    border-bottom: 3px solid #FFD700; /* Золотистая граница снизу заголовков */
+    font-weight: 700; /* Жирный текст для заголовков */
+}
+
+.admin-table td {
+    width: 1%;
+    background: rgba(255, 228, 196, 1); /* Нежный бежевый фон для ячеек */
+    border: 2px solid rgba(255, 255, 255, 0.7); /* Более заметная граница для ячеек */
+    padding: 12px; /* Отступы для ячеек */
+    text-align: left; /* Выравнивание текста в ячейках */
+    word-break: auto-phrase; /* Перенос слов */
+    font-size: 1rem; /* Базовый размер шрифта */
+    line-height: 1.4; /* Улучшенный межстрочный интервал */
+    transition: background-color 0.3s, font-weight 0.2s; /* Плавный переход для фона и веса шрифта */
+    font-weight: 600; /* Увеличение жирности текста для ячеек */
+    color: #4B3D3D; /* Темно-коричневый цвет текста для ячеек */
+}
+
+.admin-table td:hover {
+    background: rgba(255, 165, 100, 0.8); /* Яркий оранжевый цвет фона при наведении */
+    font-weight: 700; /* Жирный текст при наведении */
+}
+
+.admin-table tr:nth-child(even) {
+    background-color: rgba(255, 228, 196, 0.5); /* Очень светлый бежевый фон для четных строк */
+}
+
+.admin-table tr:hover {
+    background-color: rgba(255, 165, 0, 0.6); /* Цвет фона при наведении на строку */
+    transition: background-color 0.3s; /* Плавный переход для фона */
+}
+
+/* Улучшение границ таблицы */
+.admin-table {
+    border: 2px solid #ddd; /* Основная граница таблицы */
 }
 
 .admin-table th, .admin-table td {
-    border: 1px solid #ddd; /* Граница для ячеек */
-    padding: 8px; /* Отступы для ячеек */
-    text-align: left; /* Выравнивание текста в ячейках */
+    border: 2px solid rgba(255, 255, 255, 0.7); /* Более заметные границы ячеек */
 }
+
+
+
 
 .detail-photo {
     width: 50px; /* Ширина фото */
@@ -83,13 +135,14 @@ body {
     padding: 20px; /* Отступы */
     margin-left: auto;
     margin-right: auto;
-    height: auto;
+    height: 95%;
     border: 3px solid black; /* Граница */
     width: 30%; /* Ширина модального окна */
     border-radius: 30px;
     background-image: url("../img/background.jpeg");
     background-size: cover; /* Чтобы изображение заполнило весь фон */
     background-position: center; /* Центрируем изображение */
+    overflow-y: auto;
 }
 
 .modal-content-photo {
@@ -139,4 +192,99 @@ body {
 
 .form-group:last-child {
     margin-right: 0; /* Убираем отступ у последней группы */
+}
+
+
+/* Адаптивные медиа-запросы */
+@media screen and (max-width: 1200px) {
+    .admin-table th,
+    .admin-table td {
+        padding: 10px;
+        font-size: 0.95rem;
+    }
+}
+
+@media screen and (max-width: 992px) {
+    .admin-table th,
+    .admin-table td {
+        padding: 8px;
+        font-size: 0.9rem;
+    }
+
+    .admin-button {
+        min-width: 120px;
+        font-size: 16px;
+        padding: 8px 20px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .admin-table th,
+    .admin-table td {
+        padding: 6px;
+        font-size: 0.85rem;
+        min-width: 60px;
+    }
+
+    .admin-header {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .admin-button {
+        width: auto;
+        min-width: 100px;
+        font-size: 14px;
+        margin-right: 2%;
+        padding: 6px 15px;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    body {
+        padding: 10px;
+    }
+
+    .admin-table th,
+    .admin-table td {
+        padding: 4px;
+        font-size: 0.8rem;
+        min-width: 50px;
+    }
+
+    .admin-button {
+        min-width: 80px;
+        font-size: 12px;
+        padding: 4px 10px;
+        border-radius: 6px;
+    }
+
+    .modal-content {
+        width: 95%;
+        padding: 10px;
+    }
+}
+
+/* Для очень маленьких экранов - вертикальное меню */
+@media screen and (max-width: 480px) {
+    .admin-header {
+        flex-direction: column;
+    }
+
+    .admin-button {
+        width: 100%;
+        margin: 5px 0;
+    }
+
+    .admin-table {
+        font-size: 0.75rem;
+    }
+}
+
+/* Гарантия минимальной читаемости */
+@media screen and (max-width: 360px) {
+    .admin-table th,
+    .admin-table td {
+        font-size: 0.7rem;
+    }
 }

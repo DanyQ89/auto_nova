@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Управление деталями</title>
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
     <link rel="stylesheet" href="../static/css/admin.css">
+
     {% extends "base.html" %}
 </head>
 
@@ -18,7 +20,7 @@
     <a href="./guarantees">Гарантии</a>
     <a href="#" onclick="toggleMenu()">Закрыть меню</a>
 </div>
-<div class="admin-container background-main">
+<div class="admin-container ">
     <header class="admin-header background-main">
         <h1>Управление деталями</h1>
         <button id="addDetailBtn" class="admin-button">Добавить деталь</button>
@@ -42,9 +44,8 @@
             <th>Уникальный ID детали</th> <!-- Новый столбец -->
             <th>Оригинальный номер</th> <!-- Новый столбец -->
             <th>Процент</th> <!-- Новый столбец -->
-            <th>CpK</th> <!-- Новый столбец -->
             <th>Фото</th> <!-- Новый столбец -->
-
+            <th></th>
         </tr>
         </thead>
         <tbody>
@@ -65,7 +66,6 @@
             <td>{{ detail.ID_detail }}</td> <!-- Новый столбец -->
             <td>{{ detail.orig_number }}</td> <!-- Новый столбец -->
             <td>{{ detail.percent }}</td> <!-- Новый столбец -->
-            <td>{{ detail.CpK }}</td> <!-- Новый столбец -->
             <td>
                 {% if detail.photos %}
                 <button class="view-photo-button" onclick="fetchPhoto('{{ detail.id }}')">Просмотреть фото</button>
@@ -166,11 +166,6 @@
             </div>
 
             <div class="form-row">
-                <div class="form-group">
-                    <label for="CpK">CpK:</label>
-                    <input type="text" name="CpK" id="CpK">
-                </div>
-
                 <div class="form-group">
                     <label for="color">Цвет:</label>
                     <input type="text" name="color" id="color">

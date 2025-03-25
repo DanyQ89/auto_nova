@@ -1,4 +1,6 @@
 body {
+    width: 100%;
+    height: 100%;
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
@@ -8,21 +10,25 @@ body {
 }
 
 header {
-    display: flex; /* Используем Flexbox */
-    justify-content: space-between; /* Центрируем содержимое по горизонтали */
-    align-items: center; /* Центрируем содержимое по вертикали */
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
     background-color: #000000; /* Цвет фона */
-    padding: 10px 20px; /* Отступы для заголовка */
     color: white; /* Цвет текста */
+    flex-wrap: wrap;
 }
 
 .title {
     color: white;
-    font-size: 200%;
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
     text-decoration: none;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     text-align: center; /* Центрируем текст заголовка */
-    margin: 0; /* Убираем отступы */
-
+    align-items: center;
 }
 
 
@@ -60,18 +66,29 @@ header {
 }
 
 .buttons {
-    display: flex;
-    gap: 5px;
+    position: relative;
+    display:flex;
+    white-space: nowrap;
+         /* Включаем flex-контейнер */
+    align-items: center;
 }
 
 .button {
+  font-size: clamp(0.875rem, 1.5vw, 1rem);
+  min-width: max-content;
+
     background-color: #fff;
     color: black;
     border: 1px solid #fff; /* Исправлено на #fff вместо #white */
-    padding: 10px 10px;
-    margin: 5px 2px 5px 0px;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem; /* Отступы вокруг кнопки */
     text-decoration: none;
     border-radius: 6px;
+    transition:
+    transform 0.2s ease,
+    background-color 0.2s ease;
+    flex: 0 0 auto;     /* Запрещаем сжатие/растяжение */
+
 }
 
 .button:hover {
@@ -113,6 +130,25 @@ p {
         flex-direction: column; /* Вертикальное расположение элементов в заголовке */
         align-items: flex-start; /* Выравнивание по левому краю */
     }
+}
+
+@media (max-width: 480px) {
+  .header__buttons {
+    gap: 0.25rem;
+  }
+
+  .header__button {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+}
+
+/* Для очень маленьких экранов */
+@media (max-width: 360px) {
+  .header__button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
 }
 
 form {
@@ -260,4 +296,25 @@ th {
     transform: scale(1.1); /* Увеличение логотипа при наведении */
 }
 
+.notification {
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    color: white;
+    background-color: #4CAF50;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    animation: slideIn 0.5s, fadeOut 0.5s 2.5s;
+    animation-fill-mode: forwards;
+    max-width: 300px;
+    word-wrap: break-word;
+}
 
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}

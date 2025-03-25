@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% extends "base.html" %}
-    {% block styles %}
-    <link rel="stylesheet" href="../static/css/basket.css"> <!-- Подключаем CSS для блока content -->
-    {% endblock %}
+<!--    <link rel="stylesheet" href="../static/css/basket.css"> &lt;!&ndash; Подключаем CSS для блока content &ndash;&gt;-->
     <title>Корзина</title>
+    <link rel="stylesheet" href="../static/css/admin.css"> <!-- Подключаем CSS для блока content -->
+    {% extends "base.html" %}
+
 <!--    <link rel="stylesheet" href="../static/css/basket.css">-->
 </head>
 <body>
@@ -18,9 +18,13 @@
         <a href="./guarantees">Гарантии</a>
         <a href="#" onclick="toggleMenu()">Закрыть меню</a>
     </div>
-    <h1>Корзина</h1>
+    <div class="admin-container">
 
-    <table>
+    <header class="admin-header background-main">
+        <h1>Корзина</h1>
+    </header>
+
+    <table class="admin-table">
         <thead>
             <tr>
                 <th>Артикул</th>
@@ -55,66 +59,8 @@
     <p id="totalCard">Итого по карте: {{ total_card_price }} руб.</p>
 
     <button id="checkoutButton">Оформить заказ</button>
-    <script>
-        async function removeFromBasket(detailId) {
-            try {
-                const response = await fetch(`/remove_from_basket/${detailId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
+    {% endblock %}
 
-                if (response.ok) {
-                    const data = await response.json();
-
-                    // Найдите строку таблицы, соответствующую удаляемой детали
-                    const row = document.querySelector(`tr[data-detail-ID_detail="${detailId}"]`);
-
-                    if (row) {
-                        row.remove();
-                        console.log(`Row with detail ID ${detailId} removed from table.`);
-                    }
-
-                    // Обновите итоговые суммы
-                    updateTotals();
-                } else {
-                    const data = await response.json();
-                    alert(data.error || 'Произошла ошибка при удалении детали из корзины.');
-                }
-            } catch (error) {
-                console.error('Ошибка при удалении детали из корзины:', error);
-                alert('Произошла ошибка при удалении детали из корзины.');
-            }
-        }
-
-        // Функция для обновления итоговых сумм
-        function updateTotals() {
-            let total = 0;
-            let totalCard = 0;
-
-            // Переберите все строки таблицы и пересчитайте суммы
-            const rows = document.querySelectorAll('#cartItems tr');
-            rows.forEach(row => {
-                const price = parseFloat(row.querySelector('td:nth-child(5)').innerText) || 0; // Цена
-                const priceCard = parseFloat(row.querySelector('td:nth-child(6)').innerText) || 0; // Цена по карте
-                total += price;
-                totalCard += priceCard;
-            });
-
-            document.getElementById('total').innerText = `Итого: ${total} руб.`;
-            document.getElementById('totalCard').innerText = `Итого по карте: ${totalCard} руб.`;
-        }
-
-        // Обработчик события blur для ячеек таблицы
-        document.getElementById('cartItems').addEventListener('blur', function(e) {
-            if (e.target.tagName === 'TD' && e.target.innerHTML.trim() === '') {
-                const row = e.target.parentNode; // Получаем родительскую строку
-                row.remove(); // Удаляем строку, если ячейка пустая
-                updateTotals(); // Обновляем итоговые суммы
-            }
-        }, true);
-    </script>
-{% endblock %}
+    </div>
 </body>
 </html>

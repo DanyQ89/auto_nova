@@ -18,16 +18,3 @@ def get_number(string):
     arr = f'+7{arr[1:11]}'
 
     return arr
-
-
-from PIL import Image
-
-
-def get_photo(request):
-    photo = request.files.get('photo')
-    if photo:
-        image = Image.open(photo)
-        img_byte_arr = io.BytesIO()
-        image.save(img_byte_arr, format='JPEG', quality=90, target_size=(500, 500))
-        return img_byte_arr.getvalue()
-    return ''

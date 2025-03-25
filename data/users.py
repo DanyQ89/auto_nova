@@ -1,7 +1,8 @@
 import datetime
 
 from flask_login import UserMixin
-from sqlalchemy import Column, String, Integer, DateTime, BLOB, Date, ForeignKey, Table
+from sqlalchemy.dialects.postgresql import BYTEA
+from sqlalchemy import Column, String, Integer, DateTime, Date, ForeignKey, Table, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy_serializer import SerializerMixin
 from .database import SqlAlchemyBase
@@ -17,6 +18,7 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     password = Column(String)
     modified_date = Column(DateTime, default=datetime.datetime.now())
 
+
     # Связь с корзинами
     baskets = relationship("Basket", back_populates="user")
 
@@ -26,7 +28,7 @@ class Photo(SqlAlchemyBase, SerializerMixin):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     detail_id = Column(Integer, ForeignKey('details.id'))
-    photo = Column(BLOB)
+    photo = Column(BYTEA)
 
     # Обратная связь с моделью Detail
     detail = relationship("Detail", back_populates="photos")
@@ -48,7 +50,6 @@ class Detail(SqlAlchemyBase, SerializerMixin):
     orig_number = Column(String)
     condition = Column(String)
     percent = Column(Integer)
-    CpK = Column(String)
     color = Column(String)
     data_created = Column(Date, default=datetime.date.today())
 

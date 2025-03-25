@@ -1,11 +1,10 @@
 <head>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap" rel="stylesheet">
-    {% extends "base.html" %}
-    {% block styles %}
-    <link rel="stylesheet" href="../../static/css/car.css">
-    {% endblock %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../static/css/car.css">
+    {% extends "base.html" %}
+
 </head>
 
 {% block content %}
@@ -29,45 +28,58 @@
     <br>
 </div>
 
+{% if products %}
 <h3>
     <span class="details">
-        {% if products %}
             Найдено деталей: {{ products|length }}
-        {% endif %}
     </span>
 </h3>
+{% endif %}
 
 <div class="product-container">
     {% for product in products %}
-    <div class="product-card">
-        <div class="image-container">
-            {% if product.encoded_photos %}
-            <div class="slider-container">
-                <button class="slider-arrow left-arrow" onclick="changePhoto(-1, {{ loop.index0 }})">&#10094;</button>
-                <div class="slider">
-                    {% for photo in product.encoded_photos %}
-                    <a href="#" onclick="getDetail('{{ product.ID_detail }}')">
-                        <img src="data:image/jpg;base64,{{ photo }}"
-                             alt="{{ product.name }}"
-                             class="product-image slider-photo">
-                    </a>
-                    {% endfor %}
+<div class="product-card">
+    <div class="image-container">
+        {% if product.encoded_photos %}
+        <div class="slider-container">
+            <!-- Добавляем stopPropagation для стрелок -->
+            <button class="slider-arrow left-arrow"
+                    onclick="changePhoto(-1, {{ loop.index0 }}); event.stopPropagation()">
+                &#10094;
+            </button>
+
+            <div class="slider" onclick="event.stopPropagation()">
+                {% for photo in product.encoded_photos %}
+                <div class="slide-wrapper">
+
+                    <img src="data:image/jpg;base64,{{ photo }}"
+                         alt="{{ product.name }}"
+                         class="product-image slider-photo {% if loop.first %}active{% endif %}"
+                         onclick="getDetail('{{ product.ID_detail }}', event)">
                 </div>
-                <button class="slider-arrow right-arrow" onclick="changePhoto(1, {{ loop.index0 }})">&#10095;</button>
+                {% endfor %}
             </div>
-            {% else %}
-            <p class="no-image">Изображение недоступно</p>
-            {% endif %}
+
+            <button class="slider-arrow right-arrow"
+                    onclick="changePhoto(1, {{ loop.index0 }}); event.stopPropagation()">
+                &#10095;
+            </button>
         </div>
+        {% else %}
+        <p class="no-image">Изображение недоступно</p>
+        {% endif %}
+    </div>
 
         <div class="product-info">
             <h2 class="product-title">{{ product.name }}</h2>
             <p class="product-description">{{ product.comment }}</p>
 
             <div class="product-price">
-                <span class="old-price">{{ product.price }} ₽</span>
                 {% if product.price_w_discount %}
-                <span class="current-price">{{ product.price_w_discount }} ₽</span>
+                    <span class="old-price">{{ product.price }} ₽</span>
+                    <span class="current-price">{{ product.price_w_discount }} ₽</span>
+                {% else %}
+                    <span class="current-price">{{ product.price }} ₽</span>
                 {% endif %}
             </div>
 
@@ -87,107 +99,10 @@
     </div>
 </div>
 
-<script>
-    function getDetail(partNumber) {
-        fetch(`/get_detail/${partNumber}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Деталь не найдена');
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Заполняем модальное окно данными
-                document.getElementById('modal-image').src = `data:image/jpg;base64,${data.photo}`;
-                document.querySelector('.modal-details').innerHTML = `
-                    <h2>${data.name}</h2>
-                    <p>Артикул: ${data.orig_number}</p>
-                    <p>Бренд: ${data.brand}</p>
-                    <p>Модель и год: ${data.model_and_year}</p>
-                    <p>Цена: ${data.price} ₽</p>
-                    ${data.price_w_discount ? `<p>Старая цена: ${data.price_w_discount} ₽</p>` : ''}
-                    <p>Состояние: ${data.condition}</p>
-                    <p>Цвет: ${data.color}</p>
-                    <p>Комментарий: ${data.comment}</p>
-                    <button onclick="addToCart('${data.ID_detail}')" class="add-to-cart">Добавить в корзину</button>
-                `;
 
-                // Показываем модальное окно
-                document.getElementById('detail-modal').style.display = 'flex';
-            })
-            .catch(error => {
-                console.error('Ошибка:', error);
-                alert(error.message);
-            });
-    }
 
-    // Функция для закрытия модального окна
-    function closeDetail() {
-        document.getElementById('detail-modal').style.display = 'none';
-    }
 
-    function addToCart(productId) {
-        fetch(`/add_to_basket/${productId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ product_id: productId })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Товар добавлен в корзину');
-            } else {
-                alert('Ошибка при добавлении товара в корзину');
-            }
-        });
-    }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const sliders = document.querySelectorAll('.slider');
-        sliders.forEach((slider, index) => {
-            const photos = slider.querySelectorAll('.slider-photo');
-            if (photos.length > 0) {
-                photos[0].classList.add('active'); // Показываем первую фотографию
-            }
-        });
-    });
-
-    function changePhoto(direction, sliderIndex) {
-        const slider = document.querySelectorAll('.slider')[sliderIndex];
-        if (!slider) {
-            alert('Slider not found');
-            return;
-        }
-
-        const photos = slider.querySelectorAll('.slider-photo');
-        if (photos.length === 0) {
-            alert('No photos found');
-            return;
-        }
-
-        let activeIndex = -1;
-
-        // Находим индекс активной фотографии
-        photos.forEach((photo, index) => {
-            if (photo.classList.contains('active')) {
-                activeIndex = index;
-                photo.classList.remove('active');
-            }
-        });
-
-        // Вычисляем новый индекс
-        let newIndex = activeIndex + direction;
-        if (newIndex < 0) {
-            newIndex = photos.length - 1; // Переход к последней фотографии
-        } else if (newIndex >= photos.length) {
-            newIndex = 0; // Переход к первой фотографии
-        }
-
-        // Показываем новую фотографию
-        photos[newIndex].classList.add('active');
-}
-</script>
+<script src="../../static/js/car.js"></script>
 
 {% endblock %}

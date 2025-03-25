@@ -3,7 +3,7 @@ async function fetchDetail() {
 
     // Проверка, что номер детали является числом и больше или равен 0
     if (!partNumber || partNumber < 0) {
-        alert('Пожалуйста, введите номер детали, который должен быть >= 0.');
+        showNotification('Пожалуйста, введите номер детали, который должен быть >= 0.');
         return;
     }
 
@@ -39,18 +39,18 @@ async function fetchDetail() {
                 actionCell.innerHTML = `<span>Деталь уже в корзине</span>`;
             }
         } else {
-            alert(data.error);
+            showNotification(data.error);
             document.getElementById('detailTable').style.display = 'none';
         }
     } catch (error) {
         console.error('Ошибка при получении данных:', error);
-        alert('Произошла ошибка при получении данных.');
+        showNotification('Произошла ошибка при получении данных.');
     }
 }
 
 // Функция для добавления детали в корзину
 async function addToCart(detailId) {
-    console.log("Something")
+    alert("Something")
     try {
         const response = await fetch(`/add_to_basket/${detailId}`, {
             method: 'POST',
@@ -61,14 +61,14 @@ async function addToCart(detailId) {
 
         if (response.ok) {
             const data = await response.json();
-            alert(data.success);
+            showNotification(data.success);
             // Здесь можно обновить интерфейс или выполнить другие действия
         } else {
             const data = await response.json();
-            alert(data.error || 'Произошла ошибка при добавлении детали в корзину.');
+            showNotification(data.error || 'Произошла ошибка при добавлении детали в корзину.');
         }
     } catch (error) {
         console.error('Ошибка при добавлении детали в корзину:', error);
-        alert('Произошла ошибка при добавлении детали в корзину.');
+        showNotification('Произошла ошибка при добавлении детали в корзину.');
     }
 }

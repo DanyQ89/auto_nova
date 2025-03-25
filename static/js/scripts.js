@@ -52,7 +52,6 @@ function openModal(action, detail = {}) {
     const origNumberInput = document.getElementById('orig_number');
     const conditionInput = document.getElementById('condition');
     const percentInput = document.getElementById('percent');
-    const cpkInput = document.getElementById('CpK');
     const colorInput = document.getElementById('color');
     const skladInput = document.getElementById('sklad');
     const idDetailInput = document.getElementById('ID_detail');
@@ -76,7 +75,6 @@ function openModal(action, detail = {}) {
         origNumberInput.value = detail.orig_number || '';
         conditionInput.value = detail.condition || '';
         percentInput.value = detail.percent || 0;
-        cpkInput.value = detail.CpK || '';
         colorInput.value = detail.color || '';
         submitButton.textContent = 'Обновить данные';
     } else {
@@ -95,7 +93,6 @@ function openModal(action, detail = {}) {
         origNumberInput.value = '';
         conditionInput.value = '';
         percentInput.value = 0;
-        cpkInput.value = '';
         colorInput.value = '';
         submitButton.textContent = 'Сохранить';
     }
@@ -123,7 +120,6 @@ function editDetail(detailId) {
 async function fetchPhoto(detailId) {
     try {
         const response = await fetch(`/photo/${detailId}`); // Запрос на сервер для получения фото
-        alert(`${response.ok}`)
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
@@ -186,14 +182,13 @@ async function editPhoto(photoId, file) {
         const result = await response.json();
 
         if (response.ok) {
-            alert(result.message); // Успешное обновление
+            console.log(result.message); // Успешное обновление
             // Обновите интерфейс, если нужно
         } else {
-            alert(`Ошибка: ${result.message}`); // Ошибка
+            console.error(`Ошибка: ${result.message}`); // Ошибка
         }
     } catch (error) {
         console.error('Ошибка при редактировании фото:', error);
-        alert('Произошла ошибка при редактировании фото');
     }
 }
 
@@ -206,14 +201,13 @@ async function deletePhoto(photoId) {
         const result = await response.json();
 
         if (response.ok) {
-            alert(result.message); // Успешное удаление
+            console.log(result.message); // Успешное удаление
             // Обновите интерфейс, если нужно
         } else {
-            alert(`Ошибка: ${result.message}`); // Ошибка
+            console.log(`Ошибка: ${result.message}`); // Ошибка
         }
     } catch (error) {
         console.error('Ошибка при удалении фото:', error);
-        alert('Произошла ошибка при удалении фото');
     }
 }
 
@@ -243,14 +237,96 @@ function uploadPhoto(detailId) {
         })
         .then(data => {
             console.log('Успешно загружено:', data);
-            // Здесь можно обновить интерфейс или показать сообщение об успехе
-            alert(data.message); // Показываем сообщение об успехе
         })
         .catch(error => {
             console.error('Ошибка:', error);
-            alert('Ошибка при загрузке фото: ' + error.message);
         });
     } else {
-        alert('Пожалуйста, выберите файл для загрузки.');
+        console.log('Пожалуйста, выберите файл для загрузки.');
     }
 }
+
+function showNotification(message, type = 'success') {
+    const container = document.getElementById('notification-container');
+    const notification = document.createElement('div');
+
+    // Настройки стиля в зависимости от типа
+    const styles = {
+        'success': { bg: '#4CAF50', icon: '✓' },
+        'error': { bg: '#f44336', icon: '✗' },
+        'warning': { bg: '#ff9800', icon: '⚠' },
+        'info': { bg: '#2196F3', icon: 'ℹ' }
+    };
+
+    notification.className = 'notification';
+    notification.innerHTML = `<strong>${styles[type].icon}</strong> ${message}`;
+    notification.style.backgroundColor = styles[type].bg;
+
+    container.appendChild(notification);
+
+    // Автоматическое удаление через 3 секунды
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+
+async function removeFromBasket(detailId) {
+        try {
+            const response = await fetch(`/remove_from_basket/${detailId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+
+                // Найдите строку таблицы, соответствующую удаляемой детали
+                const row = document.querySelector(`tr[data-detail-ID_detail="${detailId}"]`);
+
+                if (row) {
+                    row.remove();
+                    console.log(`Row with detail ID ${detailId} removed from table.`);
+                }
+
+                // Обновите итоговые суммы
+                showNotification('I am kapibara');
+                updateTotals();
+            } else {
+                const data = await response.json();
+                showNotification(data.error || 'Произошла ошибка при удалении детали из корзины.');
+            }
+        } catch (error) {
+            console.error('Ошибка при удалении детали из корзины:', error);
+            showNotification('Произошла ошибка при удалении детали из корзины.');
+        }
+    }
+
+    // Функция для обновления итоговых сумм
+    function updateTotals() {
+        let total = 0;
+        let totalCard = 0;
+
+        // Переберите все строки таблицы и пересчитайте суммы
+        const rows = document.querySelectorAll('#cartItems tr');
+        rows.forEach(row => {
+            const price = parseFloat(row.querySelector('td:nth-child(5)').innerText) || 0; // Цена
+            const priceCard = parseFloat(row.querySelector('td:nth-child(6)').innerText) || 0; // Цена по карте
+            total += price;
+            totalCard += priceCard;
+        });
+
+        document.getElementById('total').innerText = `Итого: ${total} руб.`;
+        document.getElementById('totalCard').innerText = `Итого по карте: ${totalCard} руб.`;
+    }
+
+    // Обработчик события blur для ячеек таблицы
+    document.getElementById('cartItems').addEventListener('blur', function(e) {
+        if (e.target.tagName === 'TD' && e.target.innerHTML.trim() === '') {
+            const row = e.target.parentNode; // Получаем родительскую строку
+            row.remove(); // Удаляем строку, если ячейка пустая
+            updateTotals(); // Обновляем итоговые суммы
+        }
+    }, true);
