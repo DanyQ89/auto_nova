@@ -142,7 +142,6 @@ def update_detail(detail_id):
             'orig_number': detail.orig_number,
             'condition': detail.condition,
             'percent': detail.percent,
-            'CpK': detail.CpK,
             'color': detail.color,
             'data_created': detail.data_created.strftime('%Y-%m-%d')
         })
@@ -171,7 +170,6 @@ async def add_detail():
             orig_number=request.form.get('orig_number', ''),
             condition=request.form.get('condition', ''),
             percent=request.form.get('percent', 0),
-            CpK=request.form.get('CpK', ''),
             color=request.form.get('color', ''),
         )
 
@@ -207,7 +205,6 @@ async def add_detail():
         detail.orig_number = request.form.get('orig_number', detail.orig_number)
         detail.condition = request.form.get('condition', detail.condition)
         detail.percent = request.form.get('percent', detail.percent)
-        detail.CpK = request.form.get('CpK', detail.CpK)
         detail.color = request.form.get('color', detail.color)
 
         # Обработка загрузки файлов
@@ -260,13 +257,28 @@ def basket():
         if basket:
             details = basket.details
             for detail in details:
+                print(f"ID: {detail.id}")
+                print(f"Creator ID: {detail.creator_id}")
+                print(f"Sklad: {detail.sklad}")
+                print(f"ID Detail: {detail.ID_detail}")
+                print(f"Brand: {detail.brand}")
+                print(f"Model and Year: {detail.model_and_year}")
+                print(f"Name: {detail.name}")
+                print(f"Price: {detail.price}")
+                print(f"Price with Discount: {detail.price_w_discount}")
+                print(f"Comment: {detail.comment}")
+                print(f"Original Number: {detail.orig_number}")
+                print(f"Condition: {detail.condition}")
+                print(f"Percent: {detail.percent}")
+                print(f"Color: {detail.color}")
+                print(f"Date Created: {detail.data_created}")
+                print("-" * 40)  # Разделитель для удобства чтения
+
                 total_price += float(detail.price)
-                total_card_price += float(detail.price_w_discount)
+                total_card_price += float(detail.price_w_discount) if detail.price_w_discount else float(detail.price)
 
         session.close()  # Закрываем сессию
     return render_template("basket.html", details=details, total_price=total_price, total_card_price=total_card_price)
-
-
 @app.route("/add_to_basket/<string:num>", methods=["POST"])
 @login_required
 def add_to_basket(num):
@@ -284,7 +296,7 @@ def add_to_basket(num):
 
     existing_detail = session.query(basket_details).filter_by(basket_id=basket.id, detail_id=detail.id).first()
     if existing_detail:
-        existing_detail.quantity += 1
+        pass
     else:
         new_entry = {
             'basket_id': basket.id,
@@ -526,5 +538,9 @@ def not_found_error(_):
 
 if __name__ == '__main__':
     # global_init("./db/data.sqlite")
+    import locale
+
+    locale.setlocale(locale.LC_ALL, '')  # Устанавливаем локаль по умолчанию
+
     app.register_error_handler(404, not_found_error)
     app.run(port=8888, host='127.0.0.1')

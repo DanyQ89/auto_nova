@@ -50,7 +50,6 @@ class Detail(SqlAlchemyBase, SerializerMixin):
     orig_number = Column(String)
     condition = Column(String)
     percent = Column(Integer)
-    CpK = Column(String)
     color = Column(String)
     data_created = Column(Date, default=datetime.date.today())
 

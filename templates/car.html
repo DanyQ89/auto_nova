@@ -75,9 +75,11 @@
             <p class="product-description">{{ product.comment }}</p>
 
             <div class="product-price">
-                <span class="old-price">{{ product.price }} ₽</span>
                 {% if product.price_w_discount %}
-                <span class="current-price">{{ product.price_w_discount }} ₽</span>
+                    <span class="old-price">{{ product.price }} ₽</span>
+                    <span class="current-price">{{ product.price_w_discount }} ₽</span>
+                {% else %}
+                    <span class="current-price">{{ product.price }} ₽</span>
                 {% endif %}
             </div>
 

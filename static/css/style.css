@@ -296,4 +296,25 @@ th {
     transform: scale(1.1); /* Увеличение логотипа при наведении */
 }
 
+.notification {
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    color: white;
+    background-color: #4CAF50;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    animation: slideIn 0.5s, fadeOut 0.5s 2.5s;
+    animation-fill-mode: forwards;
+    max-width: 300px;
+    word-wrap: break-word;
+}
 
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
