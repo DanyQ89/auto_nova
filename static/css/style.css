@@ -1,12 +1,33 @@
 body {
     width: 100%;
     height: 100%;
-    font-family: Arial, sans-serif;
+    font-family: 'Roboto', sans-serif;
     margin: 0;
     padding: 0;
-    background-image: url("../img/background.jpeg");
-    background-position: center; /* Центрируем изображение */
-    background-size: cover; /* Чтобы изображение заполнило весь фон */
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    background-image: 
+        linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%),
+        radial-gradient(circle at 20% 20%, rgba(147, 112, 219, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(147, 112, 219, 0.1) 0%, transparent 50%);
+    color: #4a4a4a;
+    line-height: 1.6;
+    position: relative;
+    overflow-x: hidden;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        linear-gradient(45deg, transparent 48%, rgba(147, 112, 219, 0.05) 50%, transparent 52%),
+        linear-gradient(-45deg, transparent 48%, rgba(147, 112, 219, 0.05) 50%, transparent 52%);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
 }
 
 header {
@@ -14,50 +35,86 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 0;
-    background-color: #000000; /* Цвет фона */
-    color: white; /* Цвет текста */
+    padding: 1.2rem 0;
+    background: rgba(255, 255, 255, 0.95);
+    color: #4a4a4a;
     flex-wrap: wrap;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 20px rgba(147, 112, 219, 0.05);
+    border-bottom: 1px solid rgba(147, 112, 219, 0.1);
+    margin-bottom: 2rem;
 }
 
 .title {
-    color: white;
-    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    color: #4a4a4a;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
     text-decoration: none;
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    text-align: center; /* Центрируем текст заголовка */
+    text-align: center;
     align-items: center;
+    font-weight: 700;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    letter-spacing: 0.5px;
 }
 
+.title:hover {
+    transform: translateX(-50%) scale(1.05);
+    color: #9370db;
+}
 
 .menu {
     position: fixed;
-    top: 52px;
-    left: -100%; /* Скрыть за пределами экрана */
-    width: 250px; /* Фиксированная ширина для меню */
-    height: calc(100% - 52px); /* Высота меню с учетом высоты заголовка */
-    background-color: white;
-    border: 1px solid #000; /* Исправлено на #000 вместо #black */
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    top: 60px;
+    left: -100%;
+    width: 280px;
+    height: calc(100% - 60px);
+    background: rgba(255, 255, 255, 0.98);
+    border-right: 1px solid rgba(147, 112, 219, 0.1);
+    box-shadow: 4px 0 25px rgba(147, 112, 219, 0.05);
+    backdrop-filter: blur(12px);
     z-index: 1;
-    transition: left 250ms ease;
+    transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .menu.active {
-    left: 0; /* Показываем меню */
+    left: 0;
 }
 
 .menu a {
     display: block;
-    padding: 10px;
+    padding: 18px 25px;
     text-decoration: none;
-    color: #333;
+    color: #4a4a4a;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(147, 112, 219, 0.1);
+    font-weight: 500;
+    font-size: 1.1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.menu a::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 4px;
+    background: linear-gradient(to bottom, #9370db, #8a2be2);
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
 }
 
 .menu a:hover {
-    background-color: #A9A9A9;
+    background-color: rgba(147, 112, 219, 0.05);
+    padding-left: 30px;
+    color: #9370db;
+}
+
+.menu a:hover::before {
+    transform: scaleY(1);
 }
 
 .hamburger {
@@ -74,26 +131,46 @@ header {
 }
 
 .button {
-  font-size: clamp(0.875rem, 1.5vw, 1rem);
-  min-width: max-content;
-
-    background-color: #fff;
-    color: black;
-    border: 1px solid #fff; /* Исправлено на #fff вместо #white */
-    padding: 0.5rem 1rem;
-    margin: 0.5rem; /* Отступы вокруг кнопки */
+    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+    min-width: max-content;
+    background: linear-gradient(135deg, #9370db 0%, #8a2be2 100%);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    margin: 0.5rem;
     text-decoration: none;
-    border-radius: 6px;
-    transition:
-    transform 0.2s ease,
-    background-color 0.2s ease;
-    flex: 0 0 auto;     /* Запрещаем сжатие/растяжение */
+    border-radius: 12px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    flex: 0 0 auto;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(147, 112, 219, 0.2);
+    position: relative;
+    overflow: hidden;
+}
 
+.button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    transition: 0.5s;
 }
 
 .button:hover {
-    background-color: #A9A9A9;
-    color: white;
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(147, 112, 219, 0.3);
+}
+
+.button:hover::before {
+    left: 100%;
 }
 
 .content {
@@ -119,7 +196,7 @@ p {
 /* Медиа-запросы для улучшения адаптивности */
 @media (max-width: 768px) {
     .menu {
-        width: 70%; /* Ширина меню для мобильных устройств */
+        width: 80%;
     }
 
     .modal-content {
@@ -130,17 +207,30 @@ p {
         flex-direction: column; /* Вертикальное расположение элементов в заголовке */
         align-items: flex-start; /* Выравнивание по левому краю */
     }
+
+    form {
+        margin: 20px;
+        padding: 20px;
+    }
+
+    .button {
+        padding: 0.6rem 1.2rem;
+    }
 }
 
 @media (max-width: 480px) {
-  .header__buttons {
-    gap: 0.25rem;
-  }
+    .header__buttons {
+        gap: 0.5rem;
+    }
 
-  .header__button {
-    padding: 0.375rem 0.75rem;
-    font-size: 0.8125rem;
-  }
+    .header__button {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    .logo {
+        width: 100px;
+    }
 }
 
 /* Для очень маленьких экранов */
@@ -152,12 +242,14 @@ p {
 }
 
 form {
-    background-color: #f9f9f9; /* Светлый фон */
-    padding: 20px; /* Отступы вокруг формы */
-    border-radius: 10px; /* Закругленные углы */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Тень для глубины */
-    margin: 20px auto; /* Отступы сверху и снизу, автоматическое выравнивание по центру */
-    max-width: 400px; /* Максимальная ширина формы */
+    background: rgba(255, 255, 255, 0.95);
+    padding: 35px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(147, 112, 219, 0.05);
+    margin: 20px auto;
+    max-width: 450px;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(147, 112, 219, 0.1);
 }
 
 .error {
@@ -173,35 +265,45 @@ label {
 }
 
 input[type="text"], input[type="email"], input[type="password"] {
-    width: calc(100% - 30px); /* Полная ширина минус отступы */
-    padding: 10px; /* Отступы для удобства */
-    margin: 10px 0; /* Отступы между полями */
-    border: 1px solid #ccc; /* Светлая граница */
-    border-radius: 5px; /* Закругленные углы */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Легкая тень */
-    transition: border-color 0.3s; /* Плавный переход для цвета границы */
+    width: 100%;
+    padding: 15px;
+    margin: 12px 0;
+    border: 1px solid rgba(147, 112, 219, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(147, 112, 219, 0.05);
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
+    color: #4a4a4a;
+    font-size: 1rem;
 }
 
 input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
-    border-color: #333; /* Темно-серый цвет границы при фокусе */
-    box-shadow: 0 0 5px rgba(51, 51, 51, 0.5); /* Тень при фокусе */
+    border-color: #9370db;
+    box-shadow: 0 0 0 3px rgba(147, 112, 219, 0.1);
+    outline: none;
+    background: white;
+    transform: translateY(-2px);
 }
 
 button.submit-button {
-    background-color: #333; /* Темно-серый цвет для кнопки */
-    color: white; /* Белый цвет текста */
-    border: none; /* Убираем границу */
-    padding: 12px 20px; /* Увеличиваем отступы для большей кнопки */
-    border-radius: 5px; /* Закругленные углы */
-    font-size: 16px; /* Увеличиваем размер шрифта */
-    cursor: pointer; /* Указатель при наведении */
-    transition: background-color 0.3s, transform 0.2s; /* Плавный переход для фона и эффекта нажатия */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень для глубины */
+    background: linear-gradient(135deg, #00ff88 0%, #00b4d8 100%);
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+    width: 100%;
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 button.submit-button:hover {
-    background-color: #555; /* Светло-серый цвет при наведении */
-    transform: translateY(-2px); /* Поднимаем кнопку при наведении */
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 255, 136, 0.4);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 button.submit-button:active {
@@ -210,108 +312,131 @@ button.submit-button:active {
 }
 
 .error-message {
-    color: black; /* Красный цвет для текста ошибки */
+    color: #d32f2f;
     font-weight: bold;
-    background-color: #ffe6e6; /* Светло-красный фон для выделения */
-    border: 1px solid red; /* Красная граница */
-    padding: 10px; /* Отступы вокруг текста */
-    border-radius: 5px; /* Закругленные углы */
-    margin: 10px 0; /* Отступы сверху и снизу */
-    font-size: 0.9em; /* Немного меньший шрифт */
-    text-align: center; /* Центрирование текста */
+    background-color: #fdf3f2;
+    border: 1px solid #d32f2f;
+    padding: 10px;
+    border-radius: 8px;
+    margin: 10px 0;
+    font-size: 0.9em;
+    text-align: center;
 }
 
 .text-profile {
-    display: flex; /* Используем flexbox для выравнивания */
-    align-items: center; /* Центрируем элементы по вертикали */
-    text-decoration: none; /* Убираем подчеркивание */
-    color: white; /* Цвет текста */
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #4a4a4a;
     font-weight: bold;
-    padding: 10px; /* Отступы вокруг ссылки */
-    border-radius: 5px; /* Закругленные углы */
-    transition: background-color 0.3s, color 0.3s; /* Плавный переход для фона и цвета текста */
+    padding: 10px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
 }
 
 .text-profile:hover {
-    background-color: #333; /* Светло-серый фон при наведении */
-    color: white; /* Темный цвет текста при наведении */
+    background-color: rgba(147, 112, 219, 0.05);
+    color: #9370db;
 }
 
 .png-profile {
-    width: 40px; /* Ширина изображения */
-    height: 40px; /* Высота изображения */
-    border-radius: 50%; /* Круглая форма изображения */
-    margin-right: 10px; /* Отступ справа от изображения */
-    object-fit: cover; /* Обеспечиваем обрезку изображения по размеру */
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover;
+    border: 2px solid #9370db;
 }
 
 .readonly {
-    background: repeating-linear-gradient(45deg, #d3d3d3 10%, #a9a9a9 15%);
-
+    background: #f8f9fa;
     cursor: not-allowed;
 }
 
 table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 25px 0;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(147, 112, 219, 0.05);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(147, 112, 219, 0.1);
 }
 
 th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
+    padding: 18px;
     text-align: left;
+    border-bottom: 1px solid rgba(147, 112, 219, 0.1);
+    color: #4a4a4a;
+    font-size: 1.1rem;
 }
 
 th {
-    background-color: #f2f2f2;
-}
-
-.button {
-    background-color: #4CAF50; /* Зеленый */
+    background: linear-gradient(135deg, #9370db 0%, #8a2be2 100%);
     color: white;
-    padding: 10px 15px;
-    border: none;
-    cursor: pointer;
+    font-weight: 600;
+    font-size: 1.1rem;
 }
 
-.button:hover {
-    background-color: #45a049;
+tr:hover {
+    background: rgba(147, 112, 219, 0.05);
+    transition: all 0.3s ease;
 }
 
 .logo-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    margin-top: 20px;
+    gap: 25px;
+    margin: 35px 0;
+    padding: 25px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(147, 112, 219, 0.05);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(147, 112, 219, 0.1);
 }
 
 .logo {
-    width: 100px; /* Ширина логотипа */
-    height: auto; /* Автоматическая высота для сохранения пропорций */
-    margin: 10px; /* Отступы между логотипами */
-    transition: transform 0.2s; /* Плавный эффект при наведении */
+    width: 130px;
+    height: auto;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 4px 8px rgba(147, 112, 219, 0.1));
 }
 
 .logo:hover {
-    transform: scale(1.1); /* Увеличение логотипа при наведении */
+    transform: scale(1.1) translateY(-5px);
+    filter: drop-shadow(0 8px 16px rgba(147, 112, 219, 0.2));
 }
 
 .notification {
-    padding: 15px 20px;
-    margin-bottom: 10px;
-    border-radius: 5px;
+    padding: 18px 30px;
+    margin-bottom: 20px;
+    border-radius: 15px;
     color: white;
-    background-color: #4CAF50;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    animation: slideIn 0.5s, fadeOut 0.5s 2.5s;
+    background: linear-gradient(135deg, #9370db 0%, #8a2be2 100%);
+    box-shadow: 0 4px 15px rgba(147, 112, 219, 0.3);
+    animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1), fadeOut 0.5s 2.5s;
     animation-fill-mode: forwards;
-    max-width: 300px;
+    max-width: 350px;
     word-wrap: break-word;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-weight: 500;
 }
 
 @keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
+    from { 
+        transform: translateX(100%); 
+        opacity: 0; 
+    }
+    to { 
+        transform: translateX(0); 
+        opacity: 1; 
+    }
 }
 
 @keyframes fadeOut {
