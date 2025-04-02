@@ -1,205 +1,309 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: white;
-    color: black;
+    font-family: 'Roboto', sans-serif;
+    background: #f8f9fa;
+    color: #444444;
     margin: 0;
     padding: 20px;
-    font-family: 'Roboto'; /* Используем шрифт Roboto для всего тела */
+    position: relative;
+}
 
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        linear-gradient(45deg, transparent 48%, rgba(0, 0, 0, 0.01) 50%, transparent 52%),
+        linear-gradient(-45deg, transparent 48%, rgba(0, 0, 0, 0.01) 50%, transparent 52%);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
 }
 
 .background-main {
-    background-image: url("../img/back-main.jpeg");
-    background-position: center; /* Центрируем изображение */
-    background-size: cover; /* Чтобы изображение заполнило весь фон */
+    background: #f8f9fa;
 }
 
 .admin-container {
-    width: 100%; /* Устанавливаем ширину контейнера на 100% */
+    width: 100%;
     margin: auto;
+    max-width: 1400px;
+    position: relative;
+    z-index: 1;
 }
 
 .admin-header {
-    padding: 15px 20px; /* Добавляем внутренние отступы */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Небольшая
-    width: auto; /* Устанавливаем ширину заголовка на 100% */
+    padding: 25px 30px;
+    width: auto;
     display: flex;
     align-items: center;
-    background-color: #f0f0f0; /* Добавляем фон для заголовка */
+    background: #ffffff;
     text-align: center;
+    border-radius: 4px;
+    margin-bottom: 30px;
+    border: 1px solid #e8e8e8;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: space-between;
+}
+
+.admin-header h1 {
+    color: #555555;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
 }
 
 .admin-button {
-    background-color: rgba(0,0,0,0.5); /* Цвет фона */
-    color: white; /* Цвет текста */
-    border-radius: 10px; /* Закругленные углы */
-    padding: 1% 30px; /* Увеличенные отступы для большей высоты и ширины */
-    margin-right: 3%; /* Отступ справа */
-    cursor: pointer; /* Указатель при наведении */
-    font-size: 18px; /* Размер шрифта */
-    font-weight: bold;
-    border: 2px solid transparent; /* Прозрачная граница по умолчанию */
-    transition: background-color 0.2s; /* Плавный переход для фона */
-    min-width: 150px; /* Минимальная ширина кнопки */
-    width: 17%;
+    background: #6c757d;
+    color: #ffffff;
+    border-radius: 4px;
+    padding: 15px 30px;
+    margin: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    transition: all 0.3s ease;
+    min-width: 180px;
+    width: auto;
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    transition: 0.5s;
 }
 
 .admin-button:hover {
-    background-color: #222; /* Более светлый цвет фона при наведении */
+    transform: translateY(-2px);
+    background: #5a6268;
 }
 
-
-
+.admin-button:hover::before {
+    left: 100%;
+}
 
 .admin-table {
-    background-color: #f9f9f9; /* Нежный бежевый фон для таблицы */
-    width: 100%; /* Устанавливаем ширину таблицы на 100% */
-    table-layout: fixed; /* Автоматическая ширина столбцов */
-    border-collapse: collapse; /* Убираем двойные границы */
+    background: #ffffff;
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
     overflow-x: auto;
     display: block;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Легкая тень для таблицы */
-    border-radius: 10px; /* Закругленные углы */
+    border-radius: 4px;
+    border: 1px solid #e8e8e8;
 }
 
 .admin-table th {
     width: 1%;
-    background: rgba(111, 78, 55, 1); /* Матовый фон для заголовков */
-    color: #d9a778; /* Белый цвет текста заголовков */
-    padding: 15px; /* Отступы для заголовков */
-    text-align: left; /* Выравнивание текста в заголовках */
-    font-size: 1.1rem; /* Размер шрифта заголовков */
-    border-bottom: 3px solid #FFD700; /* Золотистая граница снизу заголовков */
-    font-weight: 700; /* Жирный текст для заголовков */
+    background: #6c757d;
+    color: #ffffff;
+    padding: 18px;
+    text-align: left;
+    font-size: 1.1rem;
+    border-bottom: 3px solid #e8e8e8;
+    font-weight: 700;
+    transition: background-color 0.3s ease;
 }
 
 .admin-table td {
     width: 1%;
-    background: rgba(255, 228, 196, 1); /* Нежный бежевый фон для ячеек */
-    border: 2px solid rgba(255, 255, 255, 0.7); /* Более заметная граница для ячеек */
-    padding: 12px; /* Отступы для ячеек */
-    text-align: left; /* Выравнивание текста в ячейках */
-    word-break: auto-phrase; /* Перенос слов */
-    font-size: 1rem; /* Базовый размер шрифта */
-    line-height: 1.4; /* Улучшенный межстрочный интервал */
-    transition: background-color 0.3s, font-weight 0.2s; /* Плавный переход для фона и веса шрифта */
-    font-weight: 600; /* Увеличение жирности текста для ячеек */
-    color: #4B3D3D; /* Темно-коричневый цвет текста для ячеек */
+    background: #ffffff;
+    border: 1px solid #e8e8e8;
+    padding: 15px;
+    text-align: left;
+    word-break: auto-phrase;
+    font-size: 1rem;
+    line-height: 1.4;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    color: #555555;
 }
 
 .admin-table td:hover {
-    background: rgba(255, 165, 100, 0.8); /* Яркий оранжевый цвет фона при наведении */
-    font-weight: 700; /* Жирный текст при наведении */
+    background: #f8f9fa;
+    font-weight: 600;
+    transform: translateY(-1px);
+    border-color: #6c757d;
 }
 
 .admin-table tr:nth-child(even) {
-    background-color: rgba(255, 228, 196, 0.5); /* Очень светлый бежевый фон для четных строк */
+    background: #f9f9f9;
 }
 
 .admin-table tr:hover {
-    background-color: rgba(255, 165, 0, 0.6); /* Цвет фона при наведении на строку */
-    transition: background-color 0.3s; /* Плавный переход для фона */
+    background: #f0f0f0;
+    transition: background-color 0.3s ease;
 }
 
-/* Улучшение границ таблицы */
-.admin-table {
-    border: 2px solid #ddd; /* Основная граница таблицы */
+/* Стили для кнопок в таблице */
+.view-photo-button, .add-photo-button {
+    background: #6c757d;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    margin: 2px;
+    position: relative;
+    overflow: hidden;
 }
 
-.admin-table th, .admin-table td {
-    border: 2px solid rgba(255, 255, 255, 0.7); /* Более заметные границы ячеек */
+.view-photo-button::before, .add-photo-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    transition: 0.5s;
 }
 
+.view-photo-button:hover, .add-photo-button:hover {
+    transform: translateY(-2px);
+    background: #5a6268;
+}
 
-
+.view-photo-button:hover::before, .add-photo-button:hover::before {
+    left: 100%;
+}
 
 .detail-photo {
-    width: 50px; /* Ширина фото */
-    height: auto; /* Автоматическая высота */
+    width: 50px;
+    height: auto;
+    border-radius: 4px;
+    transition: transform 0.3s ease;
+}
+
+.detail-photo:hover {
+    transform: scale(1.05);
 }
 
 .modal {
-    display: none; /* Скрыто по умолчанию */
-    position: fixed; /* Фиксированное положение */
-    z-index: 1; /* Сверху */
+    display: none;
+    position: fixed;
+    z-index: 1000;
     left: 0;
     top: 0;
-    width: 100%; /* Полная ширина */
-    height: 100%; /* Полная высота */
-    overflow: auto; /* Прокрутка, если необходимо */
-    background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный фон */
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 .modal-content {
-    background-color: white; /* Фон модального окна */
-    padding: 20px; /* Отступы */
-    margin-left: auto;
-    margin-right: auto;
-    height: 95%;
-    border: 3px solid black; /* Граница */
-    width: 30%; /* Ширина модального окна */
-    border-radius: 30px;
-    background-image: url("../img/background.jpeg");
-    background-size: cover; /* Чтобы изображение заполнило весь фон */
-    background-position: center; /* Центрируем изображение */
-    overflow-y: auto;
+    background: #ffffff;
+    padding: 40px;
+    margin: 20px auto;
+    max-width: 800px;
+    border: 1px solid #e8e8e8;
+    border-radius: 4px;
 }
 
-.modal-content-photo {
-    background-color: white; /* Фон модального окна */
-    padding: 20px; /* Отступы */
-    margin-left: auto;
-    margin-right: auto;
-    height: 95%;
-    border: 3px solid black; /* Граница */
-    width: 30%; /* Ширина модального окна */
-    border-radius: 30px;
-    background-image: url("../img/background.jpeg");
-    background-size: cover; /* Чтобы изображение заполнило весь фон */
-    background-position: center; /* Центрируем изображение */
+.modal-content h2 {
+    color: #555555;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 25px;
+    gap: 20px;
+}
+
+.form-group {
+    flex: 1;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555555;
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e8e8e8;
+    border-radius: 4px;
+    background: #ffffff;
+    color: #555555;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #6c757d;
+    background: #f8f9fa;
+}
+
+.submit-button {
+    background: #6c757d;
+    color: #ffffff;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+.submit-button:hover {
+    transform: translateY(-2px);
+    background: #5a6268;
 }
 
 .close {
-    color: black; /* Цвет для кнопки закрытия */
-    float: right; /* Выравнивание вправо */
-    font-size: 28px; /* Размер шрифта */
-    font-weight: bold; /* Жирный текст */
+    color: #555555;
+    float: right;
+    font-size: 32px;
+    font-weight: bold;
+    transition: all 0.3s ease;
 }
 
 .close:hover,
 .close:focus {
-    color: red; /* Цвет при наведении */
-    cursor: pointer; /* Указатель при наведении */
+    color: #6c757d;
+    cursor: pointer;
+    transform: rotate(90deg);
 }
 
-/* Адаптивные стили */
-@media (max-width: 1000px) {
-    .admin-table th, .admin-table td {
-        font-size: 14px; /* Уменьшаем размер шрифта для маленьких экранов */
-    }
-}
-
-.form-row {
-    display: flex; /* Используем Flexbox для размещения колонн */
-    justify-content : space-between; /* Распределяем пространство между колоннами */
-    margin-bottom: 15px; /* Отступ между строками */
-}
-
-.form-group {
-    flex: 1; /* Каждая группа занимает равное пространство */
-    margin-right: 10px; /* Отступ между колоннами */
-}
-
-.form-group:last-child {
-    margin-right: 0; /* Убираем отступ у последней группы */
-}
-
-
-/* Адаптивные медиа-запросы */
 @media screen and (max-width: 1200px) {
     .admin-table th,
     .admin-table td {
-        padding: 10px;
+        padding: 12px;
         font-size: 0.95rem;
     }
 }
@@ -207,21 +311,21 @@ body {
 @media screen and (max-width: 992px) {
     .admin-table th,
     .admin-table td {
-        padding: 8px;
+        padding: 10px;
         font-size: 0.9rem;
     }
 
     .admin-button {
         min-width: 120px;
-        font-size: 16px;
-        padding: 8px 20px;
+        font-size: 14px;
+        padding: 10px 20px;
     }
 }
 
 @media screen and (max-width: 768px) {
     .admin-table th,
     .admin-table td {
-        padding: 6px;
+        padding: 8px;
         font-size: 0.85rem;
         min-width: 60px;
     }
@@ -229,14 +333,26 @@ body {
     .admin-header {
         flex-wrap: wrap;
         gap: 10px;
+        padding: 15px;
     }
 
     .admin-button {
         width: auto;
-        min-width: 100px;
+        min-width: 120px;
         font-size: 14px;
-        margin-right: 2%;
-        padding: 6px 15px;
+        margin: 5px;
+        padding: 10px 20px;
+    }
+
+    .admin-table .action-button {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .modal-content,
+    .modal-content-photo {
+        width: 90%;
+        padding: 20px;
     }
 }
 
@@ -247,25 +363,38 @@ body {
 
     .admin-table th,
     .admin-table td {
-        padding: 4px;
+        padding: 6px;
         font-size: 0.8rem;
         min-width: 50px;
     }
 
     .admin-button {
-        min-width: 80px;
-        font-size: 12px;
-        padding: 4px 10px;
-        border-radius: 6px;
+        width: 100%;
+        margin: 5px 0;
     }
 
-    .modal-content {
+    .admin-table .action-button {
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+
+    .modal-content,
+    .modal-content-photo {
         width: 95%;
-        padding: 10px;
+        padding: 15px;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .form-group {
+        margin-right: 0;
+        margin-bottom: 10px;
     }
 }
 
-/* Для очень маленьких экранов - вертикальное меню */
 @media screen and (max-width: 480px) {
     .admin-header {
         flex-direction: column;
@@ -281,7 +410,6 @@ body {
     }
 }
 
-/* Гарантия минимальной читаемости */
 @media screen and (max-width: 360px) {
     .admin-table th,
     .admin-table td {
@@ -289,168 +417,166 @@ body {
     }
 }
 
-/* Photo Management Panel Styles */
-.photo-modal {
-    width: 80% !important;
-    max-width: 1200px;
-    padding: 30px;
-}
-
-.photo-management-panel {
+/* Photo Modal Styles */
+.photo-modal-content {
+    max-width: 800px;
+    width: 90%;
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    height: 100%;
+    align-items: center;
+}
+
+.photo-modal-title {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #555555;
+    font-size: 24px;
+}
+
+.photo-carousel-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 20px;
+    position: relative;
 }
 
 .photo-carousel {
-    position: relative;
     width: 100%;
-    height: 60vh;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 15px;
+    max-width: 600px;
+    height: 400px;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    position: relative;
+    border-radius: 4px;
+    border: 1px solid #e8e8e8;
 }
 
-.carousel-container {
-    width: 100%;
+.photo-container {
+    display: flex;
+    transition: transform 0.5s ease;
     height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
-.carousel-photo {
-    max-width: 100%;
-    max-height: 100%;
+.photo-container img {
+    min-width: 100%;
+    height: 100%;
     object-fit: contain;
+    background-color: #f8f9fa;
 }
 
-.carousel-controls {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 10px;
-}
-
-.carousel-btn {
-    background: rgba(111, 78, 55, 0.8);
-    color: #d9a778;
+.carousel-button {
+    background-color: rgba(108, 117, 125, 0.7);
+    color: white;
     border: none;
+    border-radius: 50%;
     width: 40px;
     height: 40px;
-    border-radius: 50%;
+    font-size: 16px;
     cursor: pointer;
-    font-size: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s ease;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    transition: background-color 0.3s;
 }
 
-.carousel-btn:hover {
-    background: rgba(111, 78, 55, 1);
-    transform: scale(1.1);
+.carousel-button i {
+    font-size: 18px;
 }
 
-.photo-thumbnails {
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 15px;
-    padding: 15px;
-    height: 120px;
-    overflow-x: auto;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+.carousel-button:hover {
+    background-color: rgba(108, 117, 125, 0.9);
 }
 
-.thumbnails-container {
+.carousel-button.prev {
+    left: 10px;
+}
+
+.carousel-button.next {
+    right: 10px;
+}
+
+.photo-controls {
+    width: 100%;
     display: flex;
-    gap: 10px;
-    height: 100%;
-}
-
-.thumbnail {
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
-}
-
-.thumbnail:hover {
-    transform: scale(1.05);
-}
-
-.thumbnail.active {
-    border-color: #d9a778;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 15px;
 }
 
 .photo-actions {
     display: flex;
-    gap: 15px;
-    justify-content: center;
-    padding: 15px;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 15px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    gap: 10px;
+    margin-bottom: 10px;
 }
 
-.action-btn {
-    background: rgba(111, 78, 55, 0.8);
-    color: #d9a778;
+.photo-action-button {
+    padding: 8px 16px;
     border: none;
-    padding: 12px 25px;
-    border-radius: 8px;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 16px;
+    font-weight: 500;
     display: flex;
     align-items: center;
-    gap: 8px;
-    transition: all 0.3s ease;
+    gap: 5px;
+    transition: background-color 0.3s;
 }
 
-.action-btn:hover {
-    background: rgba(111, 78, 55, 1);
-    transform: translateY(-2px);
+.photo-action-button i {
+    font-size: 16px;
 }
 
-.action-btn i {
-    font-size: 18px;
+.edit-photo {
+    background-color: #6c757d;
+    color: white;
 }
 
-.edit-btn {
-    background: rgba(111, 78, 55, 0.8);
+.edit-photo:hover {
+    background-color: #5a6268;
 }
 
-.delete-btn {
-    background: rgba(220, 53, 69, 0.8);
+.add-photo {
+    background-color: #6c757d;
+    color: white;
 }
 
-.add-btn {
-    background: rgba(40, 167, 69, 0.8);
+.add-photo:hover {
+    background-color: #5a6268;
 }
 
-/* Responsive styles for photo management panel */
-@media screen and (max-width: 768px) {
-    .photo-modal {
-        width: 95% !important;
-        padding: 15px;
-    }
+.delete-photo {
+    background-color: #dc3545;
+    color: white;
+}
 
+.delete-photo:hover {
+    background-color: #c82333;
+}
+
+.photo-counter {
+    font-size: 16px;
+    color: #6c757d;
+    margin-top: 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
     .photo-carousel {
-        height: 40vh;
+        height: 300px;
     }
-
+    
     .photo-actions {
-        flex-wrap: wrap;
+        flex-direction: column;
+        width: 100%;
     }
-
-    .action-btn {
-        padding: 10px 20px;
-        font-size: 14px;
+    
+    .photo-action-button {
+        width: 100%;
+        justify-content: center;
     }
 }

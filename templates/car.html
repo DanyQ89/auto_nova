@@ -42,26 +42,20 @@
     <div class="image-container">
         {% if product.encoded_photos %}
         <div class="slider-container">
-            <!-- Добавляем stopPropagation для стрелок -->
-            <button class="slider-arrow left-arrow"
-                    onclick="changePhoto(-1, {{ loop.index0 }}); event.stopPropagation()">
+            <button class="slider-arrow left-arrow" onclick="changePhoto(-1, {{ loop.index0 }}); event.stopPropagation()">
                 &#10094;
             </button>
-
-            <div class="slider" onclick="event.stopPropagation()">
+            <div class="slider">
                 {% for photo in product.encoded_photos %}
                 <div class="slide-wrapper">
-
                     <img src="data:image/jpg;base64,{{ photo }}"
                          alt="{{ product.name }}"
-                         class="product-image slider-photo {% if loop.first %}active{% endif %}"
+                         class="slider-photo"
                          onclick="getDetail('{{ product.ID_detail }}', event)">
                 </div>
                 {% endfor %}
             </div>
-
-            <button class="slider-arrow right-arrow"
-                    onclick="changePhoto(1, {{ loop.index0 }}); event.stopPropagation()">
+            <button class="slider-arrow right-arrow" onclick="changePhoto(1, {{ loop.index0 }}); event.stopPropagation()">
                 &#10095;
             </button>
         </div>

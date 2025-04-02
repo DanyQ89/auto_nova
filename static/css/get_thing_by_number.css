@@ -1,26 +1,93 @@
 table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 25px 0;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(147, 112, 219, 0.05);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(147, 112, 219, 0.1);
 }
 
 th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
+    padding: 18px;
     text-align: left;
+    border-bottom: 1px solid rgba(147, 112, 219, 0.1);
+    color: #4a4a4a;
+    font-size: 1.1rem;
 }
 
 th {
-    background-color: #f2f2f2;
+    background: linear-gradient(135deg, #9370db 0%, #8a2be2 100%);
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+tr:hover {
+    background: rgba(147, 112, 219, 0.05);
+    transition: all 0.3s ease;
 }
 
 .button {
-    background-color: #4CAF50; /* Зеленый */
+    background: linear-gradient(135deg, #9370db 0%, #8a2be2 100%);
     color: white;
-    padding: 10px 15px;
+    padding: 15px 30px;
     border: none;
+    border-radius: 12px;
     cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(147, 112, 219, 0.3);
+    backdrop-filter: blur(8px);
+    font-weight: 600;
+    font-size: 1.1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    transition: 0.5s;
 }
 
 .button:hover {
-    background-color: #45a049;
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(147, 112, 219, 0.4);
+}
+
+.button:hover::before {
+    left: 100%;
+}
+
+.button:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+    table {
+        margin: 15px 0;
+    }
+    
+    th, td {
+        padding: 12px;
+        font-size: 1rem;
+    }
+    
+    .button {
+        padding: 12px 24px;
+        font-size: 1rem;
+    }
 }
