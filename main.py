@@ -279,6 +279,8 @@ def basket():
 
         session.close()  # Закрываем сессию
     return render_template("basket.html", details=details, total_price=total_price, total_card_price=total_card_price)
+
+
 @app.route("/add_to_basket/<string:num>", methods=["POST"])
 @login_required
 def add_to_basket(num):
@@ -534,6 +536,75 @@ def not_found_error(_):
     return make_response(jsonify({'error': "this page doesn`t exist"}))
 
 
+@app.route('/api/photos/<int:detail_id>')
+@login_required
+def get_photos(detail_id):
+    session = create_session()
+    try:
+        detail = session.query(Detail).filter(Detail.id == detail_id).first()
+        if not detail:
+            return jsonify({'error': 'Detail not found'}), 404
+        
+        photos = []
+        if detail.photos:
+            for photo in detail.photos:
+                if photo.photo:
+                    photos.append(base64.b64encode(photo.photo).decode('utf-8'))
+        
+        return jsonify({'photos': photos})
+    finally:
+        session.close()
+
+
+@app.route('/api/photos/upload', methods=['POST'])
+@login_required
+def upload_photo():
+    if 'photo' not in request.files:
+        return jsonify({'success': False, 'error': 'No photo provided'}), 400
+    
+    file = request.files['photo']
+    detail_id = request.form.get('detail_id')
+    
+    if not file or not detail_id:
+        return jsonify({'success': False, 'error': 'Missing required fields'}), 400
+    
+    session = create_session()
+    try:
+        detail = session.query(Detail).filter(Detail.id == detail_id).first()
+        if not detail:
+            return jsonify({'success': False, 'error': 'Detail not found'}), 404
+        
+        photo = Photo(photo=file.read())
+        detail.photos.append(photo)
+        session.commit()
+        
+        return jsonify({
+            'success': True,
+            'photo_url': base64.b64encode(photo.photo).decode('utf-8')
+        })
+    finally:
+        session.close()
+
+
+@app.route('/api/photos/<int:detail_id>/<path:photo_url>', methods=['DELETE'])
+@login_required
+def delete_photo_api(detail_id, photo_url):
+    session = create_session()
+    try:
+        detail = session.query(Detail).filter(Detail.id == detail_id).first()
+        if not detail:
+            return jsonify({'success': False, 'error': 'Detail not found'}), 404
+        
+        # Find and delete the photo
+        for photo in detail.photos:
+            if base64.b64encode(photo.photo).decode('utf-8') == photo_url:
+                session.delete(photo)
+                session.commit()
+                return jsonify({'success': True})
+        
+        return jsonify({'success': False, 'error': 'Photo not found'}), 404
+    finally:
+        session.close()
 
 
 if __name__ == '__main__':
