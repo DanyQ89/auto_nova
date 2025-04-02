@@ -435,11 +435,15 @@ def get_photo(detail_id):
         detail = session.query(Detail).filter(Detail.id == detail_id).first()
 
         if detail and detail.photos:
-            image_data = [
-                base64.b64encode(photo.photo).decode('utf-8')
+            # Возвращаем список словарей с ID и данными фото
+            photos_data = [
+                {
+                    'id': photo.id,
+                    'data': base64.b64encode(photo.photo).decode('utf-8')
+                }
                 for photo in detail.photos if photo.photo
             ]
-            return jsonify(image_data), 200
+            return jsonify(photos_data), 200
         return jsonify([]), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

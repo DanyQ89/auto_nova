@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Управление деталями</title>
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="../static/css/admin.css">
 
     {% extends "base.html" %}
@@ -185,9 +186,37 @@
 </div>
 
 <div id="photoModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content photo-modal-content">
         <span class="close" onclick="closePhotoModal()">&times;</span>
-        <div class="photo-container"></div> <!-- Контейнер для фотографий -->
+        <h2 class="photo-modal-title">Фотографии детали</h2>
+        
+        <div class="photo-carousel-container">
+            <button class="carousel-button prev" onclick="prevPhoto()"><i class="fas fa-chevron-left"></i></button>
+            <div class="photo-carousel">
+                <div class="photo-container"></div>
+            </div>
+            <button class="carousel-button next" onclick="nextPhoto()"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        
+        <div class="photo-controls">
+            <div class="photo-actions">
+                <button class="photo-action-button edit-photo" onclick="editCurrentPhoto()">
+                    <i class="fas fa-edit"></i> Редактировать
+                </button>
+                <button class="photo-action-button add-photo" onclick="document.getElementById('add-photo-input').click()">
+                    <i class="fas fa-plus"></i> Добавить фото
+                </button>
+                <button class="photo-action-button delete-photo" onclick="deleteCurrentPhoto()">
+                    <i class="fas fa-trash"></i> Удалить
+                </button>
+            </div>
+            <input type="file" id="add-photo-input" style="display:none;" accept="image/*" onchange="addNewPhoto()">
+            <input type="file" id="edit-photo-input" style="display:none;" accept="image/*" onchange="uploadEditedPhoto()">
+        </div>
+        
+        <div class="photo-counter">
+            <span id="current-photo-index">1</span> / <span id="total-photos">0</span>
+        </div>
     </div>
 </div>
 
