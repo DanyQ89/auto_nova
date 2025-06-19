@@ -16,8 +16,9 @@ def global_init():
     # # Исправляем для SQLAlchemy
     # if db_url.startswith("postgres://"):
     #     db_url = db_url.replace("postgres://", "postgresql://", 1)
+    # postgresql://username:password@hostname:port/database
 
-    url = 'postgresql://data_8uxi_user:1hhFW6tstY4wJwSNmqAtbvMTo8xlyzdk@dpg-cv6mnkan91rc73bglbbg-a.oregon-postgres.render.com/data_8uxi'
+    url = 'postgresql://autonova_user:z22NMhDXEQuDGEVh120XBDQR7XDHTLmh@dpg-d189fbuuk2gs73fmis7g-a.oregon-postgres.render.com/autonova'
     engine = create_engine(url)
     __factory = sessionmaker(bind=engine)
 

@@ -3,12 +3,423 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!--    <link rel="stylesheet" href="../static/css/basket.css"> &lt;!&ndash; Подключаем CSS для блока content &ndash;&gt;-->
     <title>Корзина</title>
-    <link rel="stylesheet" href="../static/css/admin.css"> <!-- Подключаем CSS для блока content -->
+    <link rel="stylesheet" href="../static/css/admin.css">
+    <link rel="stylesheet" href="../static/css/basket.css">
     {% extends "base.html" %}
-
-<!--    <link rel="stylesheet" href="../static/css/basket.css">-->
+    
+    <style>
+        /* Стили для модального окна просмотра фото */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        
+        .modal-content {
+            position: relative;
+            margin: 5% auto;
+            padding: 20px;
+            width: 80%;
+            max-width: 600px;
+            background-color: white;
+            border-radius: 10px;
+        }
+        
+        /* Стили для модального окна благодарности */
+        .thank-you-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        .thank-you-content {
+            position: relative;
+            margin: 10% auto;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            animation: slideInDown 0.4s ease-out;
+        }
+        
+        .thank-you-header {
+            margin-bottom: 20px;
+        }
+        
+        .thank-you-header h2 {
+            font-size: 28px;
+            margin: 0 0 10px 0;
+            color: #fff;
+        }
+        
+        .thank-you-header .success-icon {
+            font-size: 60px;
+            color: #4CAF50;
+            margin-bottom: 15px;
+            animation: bounceIn 0.6s ease-out;
+        }
+        
+        .manager-info-modal {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+        }
+        
+        .manager-info-modal h3 {
+            margin: 0 0 15px 0;
+            font-size: 20px;
+        }
+        
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .contact-item {
+            text-align: left;
+        }
+        
+        .contact-item strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .contact-item a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .contact-item a:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .work-info-modal {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .close-thank-you {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            color: #fff;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .close-thank-you:hover {
+            color: #f44336;
+            transform: scale(1.1);
+        }
+        
+        .close-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .close-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .telegram-contact {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        
+        .telegram-contact a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .telegram-contact a:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .got-it-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .got-it-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: black;
+        }
+        
+        .photo-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .photo-container img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 8px;
+        }
+        
+        .photo-navigation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 15px 0;
+            gap: 15px;
+        }
+        
+        .nav-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .nav-btn:hover {
+            background: #5a6268;
+        }
+        
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .photo-counter {
+            font-weight: bold;
+        }
+        
+        .view-photos-btn {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .view-photos-btn:hover {
+            background: #138496;
+        }
+        
+        .camera-icon {
+            font-size: 14px;
+        }
+        
+        .no-photos {
+            color: #999;
+            font-style: italic;
+            font-size: 12px;
+        }
+        
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .remove-btn:hover {
+            background: #c82333;
+        }
+        
+        .remove-icon {
+            font-size: 14px;
+        }
+        
+        .checkout-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .checkout-button:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        
+        /* Дополнительные стили для улучшенной корзины */
+        .condition-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .condition-badge.new {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .condition-badge.used {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .price-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .original-price {
+            font-size: 14px;
+            color: #999;
+            text-decoration: line-through;
+            margin-bottom: 2px;
+        }
+        
+        .discount-price {
+            font-size: 16px;
+            font-weight: bold;
+            color: #28a745;
+        }
+        
+        .final-price {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        /* Скрываем старое сообщение об успехе */
+        .order-success {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .thank-you-content {
+                margin: 20% auto;
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
 {% block content %}
@@ -18,49 +429,258 @@
         <a href="./guarantees">Гарантии</a>
         <a href="#" onclick="toggleMenu()">Закрыть меню</a>
     </div>
+    
     <div class="admin-container">
+        <header class="admin-header background-main">
+            <h1>Корзина</h1>
+        </header>
 
-    <header class="admin-header background-main">
-        <h1>Корзина</h1>
-    </header>
+        <!-- Скрытое старое сообщение об успехе -->
+        <div id="orderSuccess" class="order-success">
+            <!-- Старый контент удален -->
+        </div>
 
-    <table class="admin-table">
-        <thead>
-            <tr>
-                <th>Артикул</th>
-                <th>Марка</th>
-                <th>Модель</th>
-                <th>Наименование</th>
-                <th>Цена</th>
-                <th>Цена по карте</th>
-                <th>Фото</th>
-                <th>Итого</th>
-                <th>Действие</th>
-            </tr>
-        </thead>
-        <tbody id="cartItems">
-            {% for detail in details %}
-            <tr data-detail-ID_detail="{{ detail.ID_detail }}">
-                <td>{{ detail.ID_detail }}</td>
-                <td>{{ detail.brand }}</td>
-                <td>{{ detail.model_and_year }}</td>
-                <td>{{ detail.name }}</td>
-                <td>{{ detail.price }} руб.</td>
-                <td>{{ detail.price_w_discount }} руб.</td>
-                <td><img src="{{ detail.photo }}" alt="Фото" style="width: 50px; height: auto;"></td>
-                <td>{{ detail.price }} руб.</td> <!-- Или используйте другую логику для расчета -->
-                <td><button onclick="removeFromBasket('{{ detail.ID_detail }}')">Удалить</button></td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Артикул</th>
+                    <th>Марка и модель</th>
+                    <th>Наименование</th>
+                    <th>Состояние</th>
+                    <th>Цена</th>
+                    <th>Фото</th>
+                    <th>Действие</th>
+                </tr>
+            </thead>
+            <tbody id="cartItems">
+                {% for detail in details %}
+                <tr data-detail-ID_detail="{{ detail.ID_detail }}">
+                    <td><strong>{{ detail.ID_detail }}</strong></td>
+                    <td>{{ detail.brand }} {{ detail.model_and_year }}</td>
+                    <td>{{ detail.name }}</td>
+                    <td>
+                        <span class="condition-badge {{ 'new' if detail.condition and 'новое' in detail.condition.lower() else 'used' }}">
+                            {{ detail.condition or 'Не указано' }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="price-container">
+                            {% if detail.price_w_discount and detail.price_w_discount != detail.price %}
+                                <span class="original-price">{{ detail.price }} ₽</span>
+                                <span class="discount-price">{{ detail.price_w_discount }} ₽</span>
+                            {% else %}
+                                <span class="final-price">{{ detail.price }} ₽</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        {% if detail.photos and detail.photos|length > 0 %}
+                            <button class="view-photos-btn" onclick="openPhotoModal({{ detail.id }})">
+                                <span class="camera-icon">📷</span>
+                                Фото ({{ detail.photos|length }})
+                            </button>
+                        {% else %}
+                            <span class="no-photos">Нет фото</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <button class="remove-btn" onclick="removeFromBasket('{{ detail.ID_detail }}')">
+                            <span class="remove-icon">🗑️</span>
+                            Удалить
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-    <p id="total">Итого: {{ total_price }} руб.</p>
-    <p id="totalCard">Итого по карте: {{ total_card_price }} руб.</p>
+        <p id="total">Итого: {{ total_price }} руб.</p>
+        <p id="totalCard">Итого по карте: {{ total_card_price }} руб.</p>
 
-    <button id="checkoutButton">Оформить заказ</button>
-    {% endblock %}
-
+        {% if details %}
+        <button id="checkoutButton" class="checkout-button" onclick="processOrder()">Оформить заказ</button>
+        {% endif %}
     </div>
+
+    <!-- Модальное окно для просмотра фото -->
+    <div id="photoModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closePhotoModal()">&times;</span>
+            <h3 id="modalTitle">Фотографии детали</h3>
+            <div class="photo-container">
+                <img id="modalPhoto" src="" alt="Фото детали">
+            </div>
+            <div class="photo-navigation">
+                <button class="nav-btn" id="prevBtn" onclick="previousPhoto()">❮ Предыдущее</button>
+                <span class="photo-counter" id="photoCounter">1 из 1</span>
+                <button class="nav-btn" id="nextBtn" onclick="nextPhoto()">Следующее ❯</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно благодарности -->
+    <div id="thankYouModal" class="modal">
+        <div class="modal-content thank-you-content">
+            <span class="close" onclick="closeThankYouModal()">&times;</span>
+            <div class="success-icon">✓</div>
+            <h2>Спасибо за покупку!</h2>
+            <p>С вами свяжется Сергей</p>
+            <div class="telegram-contact">
+                <a href="https://t.me/{{ contact_info.telegram }}" target="_blank">
+                    @{{ contact_info.telegram }}
+                </a>
+            </div>
+            <button class="got-it-btn" onclick="closeThankYouModal()">Понятно</button>
+        </div>
+    </div>
+
+    <script src="../static/js/cart.js"></script>
+    <script src="../static/js/scripts.js"></script>
+    <script>
+        let currentPhotos = [];
+        let currentPhotoIndex = 0;
+        
+        // Функция открытия модального окна с фото
+        async function openPhotoModal(detailId) {
+            try {
+                const response = await fetch(`/photo/${detailId}`);
+                const photos = await response.json();
+                
+                if (photos.length === 0) {
+                    showNotification('У этой детали нет фотографий', 'warning');
+                    return;
+                }
+                
+                currentPhotos = photos;
+                currentPhotoIndex = 0;
+                updateModalPhoto();
+                document.getElementById('photoModal').style.display = 'block';
+            } catch (error) {
+                console.error('Ошибка при загрузке фото:', error);
+                showNotification('Не удалось загрузить фотографии', 'error');
+            }
+        }
+        
+        // Функция закрытия модального окна
+        function closePhotoModal() {
+            document.getElementById('photoModal').style.display = 'none';
+        }
+        
+        // Функция обновления фото в модальном окне
+        function updateModalPhoto() {
+            if (currentPhotos.length === 0) return;
+            
+            const photo = currentPhotos[currentPhotoIndex];
+            document.getElementById('modalPhoto').src = `data:image/jpeg;base64,${photo.data}`;
+            document.getElementById('photoCounter').textContent = `${currentPhotoIndex + 1} из ${currentPhotos.length}`;
+            
+            // Управление кнопками навигации
+            document.getElementById('prevBtn').disabled = currentPhotoIndex === 0;
+            document.getElementById('nextBtn').disabled = currentPhotoIndex === currentPhotos.length - 1;
+        }
+        
+        // Функция перехода к предыдущему фото
+        function previousPhoto() {
+            if (currentPhotoIndex > 0) {
+                currentPhotoIndex--;
+                updateModalPhoto();
+            }
+        }
+        
+        // Функция перехода к следующему фото
+        function nextPhoto() {
+            if (currentPhotoIndex < currentPhotos.length - 1) {
+                currentPhotoIndex++;
+                updateModalPhoto();
+            }
+        }
+        
+        // Функция оформления заказа
+        async function processOrder() {
+            showConfirmDialog(
+                'Вы уверены, что хотите оформить заказ?',
+                async () => {
+                    await submitOrder();
+                },
+                () => console.log('Оформление заказа отменено')
+            );
+        }
+        
+        // Отдельная функция для отправки заказа
+        async function submitOrder() {
+            try {
+                const response = await fetch('/process_order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                // Показываем модальное окно благодарности ВСЕГДА
+                openThankYouModal();
+                
+                // Очищаем таблицу корзины
+                document.getElementById('cartItems').innerHTML = '';
+                document.getElementById('total').textContent = 'Итого: 0 руб.';
+                document.getElementById('totalCard').textContent = 'Итого по карте: 0 руб.';
+                
+                // Скрываем кнопку оформления заказа
+                document.getElementById('checkoutButton').style.display = 'none';
+                
+                if (!response.ok) {
+                    // Показываем уведомление только в консоли, модалка все равно показана
+                    console.warn('Ошибка при отправке email, но заказ обработан');
+                }
+                
+            } catch (error) {
+                // Даже при ошибке показываем благодарность
+                console.error('Ошибка при оформлении заказа:', error);
+                openThankYouModal();
+                
+                // Очищаем корзину
+                document.getElementById('cartItems').innerHTML = '';
+                document.getElementById('total').textContent = 'Итого: 0 руб.';
+                document.getElementById('totalCard').textContent = 'Итого по карте: 0 руб.';
+                document.getElementById('checkoutButton').style.display = 'none';
+            }
+        }
+        
+        // Функции модального окна благодарности
+        function openThankYouModal() {
+            console.log('Открываем модальное окно благодарности из HTML');
+            const modal = document.getElementById('thankYouModal');
+            if (modal) {
+                modal.style.display = 'block';
+                console.log('Модальное окно благодарности показано');
+            } else {
+                console.error('Модальное окно thankYouModal не найдено');
+                alert('Спасибо за покупку! С вами свяжется Сергей @autonova_spb');
+            }
+        }
+        
+        function closeThankYouModal() {
+            console.log('Закрываем модальное окно благодарности');
+            const modal = document.getElementById('thankYouModal');
+            if (modal) {
+                modal.style.display = 'none';
+                // Перенаправляем на главную после закрытия
+                window.location.href = '/';
+            }
+        }
+        
+        // Закрытие модального окна при клике вне его
+        window.onclick = function(event) {
+            const photoModal = document.getElementById('photoModal');
+            const thankYouModal = document.getElementById('thankYouModal');
+            
+            if (event.target === photoModal) {
+                closePhotoModal();
+            }
+            if (event.target === thankYouModal) {
+                closeThankYouModal();
+            }
+        }
+    </script>
+{% endblock %}
 </body>
 </html>

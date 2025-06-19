@@ -1,8 +1,13 @@
 from flask import Flask, render_template, make_response, jsonify, flash, redirect, request
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
+from flask_mail import Mail, Message
 from sqlalchemy.orm import joinedload
+import os
 
-from utils.config import secret_key
+from utils.config import (
+    secret_key, SERGEY_EMAIL, SERGEY_PHONE_FORMATTED, 
+    ORDER_SUCCESS_MESSAGE, EMAIL_SETTINGS, CONTACT_INFO
+)
 from utils.help_functions import get_number
 from forms.user import RegisterUser, LoginUser
 from data.database import create_session, global_init
@@ -15,6 +20,16 @@ global_init()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secret_key
+
+# Конфигурация для отправки email
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME', 'your-email@gmail.com')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', 'your-password')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_USERNAME', 'your-email@gmail.com')
+
+mail = Mail(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -255,30 +270,29 @@ def basket():
         session = create_session()
         basket = session.query(Basket).filter_by(user_id=current_user.id).first()
         if basket:
-            details = basket.details
+            # Используем joinedload для предварительной загрузки фотографий
+            details = session.query(Detail).options(joinedload(Detail.photos)).filter(
+                Detail.id.in_([d.id for d in basket.details])
+            ).all()
+            
             for detail in details:
-                print(f"ID: {detail.id}")
-                print(f"Creator ID: {detail.creator_id}")
-                print(f"Sklad: {detail.sklad}")
-                print(f"ID Detail: {detail.ID_detail}")
-                print(f"Brand: {detail.brand}")
-                print(f"Model and Year: {detail.model_and_year}")
-                print(f"Name: {detail.name}")
-                print(f"Price: {detail.price}")
-                print(f"Price with Discount: {detail.price_w_discount}")
-                print(f"Comment: {detail.comment}")
-                print(f"Original Number: {detail.orig_number}")
-                print(f"Condition: {detail.condition}")
-                print(f"Percent: {detail.percent}")
-                print(f"Color: {detail.color}")
-                print(f"Date Created: {detail.data_created}")
-                print("-" * 40)  # Разделитель для удобства чтения
-
-                total_price += float(detail.price)
-                total_card_price += float(detail.price_w_discount) if detail.price_w_discount else float(detail.price)
+                try:
+                    price = float(detail.price) if detail.price else 0
+                    price_w_discount = float(detail.price_w_discount) if detail.price_w_discount else price
+                    total_price += price
+                    total_card_price += price_w_discount
+                except (ValueError, TypeError):
+                    pass
 
         session.close()  # Закрываем сессию
-    return render_template("basket.html", details=details, total_price=total_price, total_card_price=total_card_price)
+    return render_template("basket.html", 
+                          details=details, 
+                          total_price=total_price, 
+                          total_card_price=total_card_price,
+                          order_success_message=ORDER_SUCCESS_MESSAGE,  # Изменено с order_success_msg на order_success_message
+                          contact_info=CONTACT_INFO)
+
+
 @app.route("/add_to_basket/<string:num>", methods=["POST"])
 @login_required
 def add_to_basket(num):
@@ -504,7 +518,7 @@ def login():
 @app.route("/edit_profile", methods=["GET", "POST"])
 def edit_profile():
     session = create_session()
-    user = session.query(User).get(current_user.id)
+    user = session.get(User, current_user.id)  # Используем новый метод Session.get()
     form = RegisterUser(obj=user)
     if form.validate_on_submit():
         user.name = form.name.data
@@ -533,11 +547,190 @@ def logout():
     return redirect("/")
 
 
+@app.route('/process_order', methods=['POST'])
+@login_required
+def process_order():
+    session = create_session()
+    
+    try:
+        # Получаем корзину пользователя
+        user_basket = session.query(Basket).filter_by(user_id=current_user.id).first()
+        
+        if not user_basket or not user_basket.details:
+            return jsonify({'error': 'Корзина пуста'}), 400
+        
+        # Получаем данные пользователя
+        user = session.query(User).get(current_user.id)
+        
+        if not user:
+            return jsonify({'error': 'Пользователь не найден'}), 404
+        
+        # Формируем информацию о заказе
+        order_details = []
+        total_price = 0
+        total_card_price = 0
+        
+        for detail in user_basket.details:
+            detail_info = {
+                'article': detail.ID_detail,
+                'brand': detail.brand,
+                'model': detail.model_and_year,
+                'name': detail.name,
+                'price': detail.price,
+                'price_w_discount': detail.price_w_discount,
+                'condition': detail.condition,
+                'color': detail.color,
+                'comment': detail.comment,
+                'orig_number': detail.orig_number
+            }
+            order_details.append(detail_info)
+            
+            try:
+                total_price += float(detail.price) if detail.price else 0
+                total_card_price += float(detail.price_w_discount) if detail.price_w_discount else float(detail.price) if detail.price else 0
+            except ValueError:
+                pass
+        
+        # Получаем ID деталей для удаления
+        detail_ids = [detail.id for detail in user_basket.details]
+        
+        # Отправляем email Сергею перед удалением (чтобы данные были доступны)
+        send_order_email(user, order_details, total_price, total_card_price)
+        
+        # Удаляем детали из ВСЕХ корзин (не только пользователя)
+        if detail_ids:
+            # Удаляем связи basket_details для всех корзин
+            session.execute(
+                basket_details.delete().where(basket_details.c.detail_id.in_(detail_ids))
+            )
+            
+            # Удаляем связанные фотографии
+            photos_to_delete = session.query(Photo).filter(Photo.detail_id.in_(detail_ids)).all()
+            for photo in photos_to_delete:
+                session.delete(photo)
+            
+            # Удаляем сами детали
+            details_to_delete = session.query(Detail).filter(Detail.id.in_(detail_ids)).all()
+            for detail in details_to_delete:
+                session.delete(detail)
+        
+        session.commit()
+        return jsonify({'success': 'Заказ успешно оформлен'}), 200
+        
+    except Exception as e:
+        session.rollback()
+        print(f"Ошибка при обработке заказа: {e}")
+        return jsonify({'error': 'Произошла ошибка при обработке заказа'}), 500
+    
+    finally:
+        session.close()
+
+
+def send_order_email(user, order_details, total_price, total_card_price):
+    """Отправляет email с информацией о заказе"""
+    try:
+        # Проверяем наличие настроек email
+        if not app.config.get('MAIL_USERNAME') or app.config['MAIL_USERNAME'] == 'your-email@gmail.com':
+            print("⚠️ Email не настроен - установите переменные окружения MAIL_USERNAME и MAIL_PASSWORD")
+            return False
+            
+        # Формируем HTML содержимое письма
+        html_content = f"""
+        <html>
+        <head>
+            <style>
+                body {{ font-family: Arial, sans-serif; }}
+                .header {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; }}
+                .content {{ padding: 20px; }}
+                .customer-info {{ background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0; }}
+                .order-table {{ width: 100%; border-collapse: collapse; margin: 20px 0; }}
+                .order-table th {{ background: #e9ecef; padding: 12px; text-align: left; border: 1px solid #dee2e6; }}
+                .order-table td {{ padding: 12px; border: 1px solid #dee2e6; }}
+                .totals {{ background: #d4edda; padding: 15px; border-radius: 8px; margin: 20px 0; }}
+                .footer {{ text-align: center; color: #6c757d; font-style: italic; margin-top: 30px; }}
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h2>🚗 AutoNova - Новый заказ</h2>
+            </div>
+            
+            <div class="content">
+                <div class="customer-info">
+                    <h3>👤 Информация о клиенте:</h3>
+                    <p><strong>Имя:</strong> {user.name or 'Не указано'}</p>
+                    <p><strong>Телефон:</strong> {user.phone or 'Не указан'}</p>
+                    <p><strong>Адрес:</strong> {user.address or 'Не указан'}</p>
+                </div>
+                
+                <h3>🛍️ Заказанные детали:</h3>
+                <table class="order-table">
+                    <tr>
+                        <th>Артикул</th>
+                        <th>Марка</th>
+                        <th>Модель</th>
+                        <th>Наименование</th>
+                        <th>Цена</th>
+                        <th>Цена со скидкой</th>
+                        <th>Состояние</th>
+                        <th>Оригинальный номер</th>
+                        <th>Комментарий</th>
+                    </tr>
+        """
+        
+        for detail in order_details:
+            html_content += f"""
+                    <tr>
+                        <td><strong>{detail['article'] or 'Не указан'}</strong></td>
+                        <td>{detail['brand'] or 'Не указана'}</td>
+                        <td>{detail['model'] or 'Не указана'}</td>
+                        <td>{detail['name'] or 'Не указано'}</td>
+                        <td>{detail['price'] or 'Не указана'} ₽</td>
+                        <td><strong>{detail['price_w_discount'] or detail['price'] or 'Не указана'} ₽</strong></td>
+                        <td>{detail['condition'] or 'Не указано'}</td>
+                        <td>{detail['orig_number'] or 'Не указан'}</td>
+                        <td>{detail['comment'] or 'Без комментария'}</td>
+                    </tr>
+            """
+        
+        html_content += f"""
+                </table>
+                
+                <div class="totals">
+                    <h3>💰 Итого:</h3>
+                    <p><strong>Общая сумма:</strong> {total_price:.2f} ₽</p>
+                    <p><strong>Итоговая сумма к оплате:</strong> <span style="color: #28a745; font-size: 18px;">{total_card_price:.2f} ₽</span></p>
+                </div>
+                
+                <div class="footer">
+                    <p>Письмо отправлено автоматически с сайта AutoNova</p>
+                    <p>📧 Для связи: {user.phone} | 📍 {user.address}</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # Создаем и отправляем письмо с Flask-Mail 0.10.0
+        with app.app_context():
+            msg = Message()
+            msg.subject = f"🚗 AutoNova: Заказ от {user.name} ({user.phone})"
+            msg.recipients = [SERGEY_EMAIL]
+            msg.html = html_content
+            msg.sender = app.config['MAIL_DEFAULT_SENDER']
+            
+            mail.send(msg)
+            print(f"✅ Email успешно отправлен на {SERGEY_EMAIL}")
+            return True
+        
+    except Exception as e:
+        print(f"❌ Ошибка при отправке email: {e}")
+        return False
+
+
 @app.errorhandler(404)
 def not_found_error(_):
     return make_response(jsonify({'error': "this page doesn`t exist"}))
-
-
 
 
 if __name__ == '__main__':

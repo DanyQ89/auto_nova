@@ -81,10 +81,14 @@ function addToCart(productId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('Товар добавлен в корзину');
+            showNotification('Товар добавлен в корзину', 'success');
         } else {
-            alert('Ошибка при добавлении товара в корзину');
+            showNotification('Ошибка при добавлении товара в корзину', 'error');
         }
+    })
+    .catch(error => {
+        console.error('Ошибка при добавлении в корзину:', error);
+        showNotification('Произошла ошибка при добавлении товара', 'error');
     });
 }
 

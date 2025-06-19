@@ -323,10 +323,12 @@ function deleteCurrentPhoto() {
     const photoId = getCurrentPhotoId();
     
     if (photoId !== null) {
-        // Запрашиваем подтверждение
-        if (confirm('Вы уверены, что хотите удалить это фото?')) {
-            deletePhoto(photoId);
-        }
+        // Запрашиваем красивое подтверждение
+        showConfirmDialog(
+            'Вы уверены, что хотите удалить это фото?',
+            () => deletePhoto(photoId),
+            () => console.log('Удаление фото отменено')
+        );
     }
 }
 
@@ -367,26 +369,209 @@ function showNotification(message, type = 'success') {
     const container = document.getElementById('notification-container');
     const notification = document.createElement('div');
 
-    // Настройки стиля в зависимости от типа
-    const styles = {
-        'success': { bg: '#4CAF50', icon: '✓' },
-        'error': { bg: '#f44336', icon: '✗' },
-        'warning': { bg: '#ff9800', icon: '⚠' },
-        'info': { bg: '#2196F3', icon: 'ℹ' }
+    // Настройки иконок в зависимости от типа
+    const icons = {
+        'success': '✓',
+        'error': '✗',
+        'warning': '⚠',
+        'info': 'ℹ'
     };
 
-    notification.className = 'notification';
-    notification.innerHTML = `<strong>${styles[type].icon}</strong> ${message}`;
-    notification.style.backgroundColor = styles[type].bg;
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <strong>${icons[type]}</strong>
+        <span>${message}</span>
+        <button class="notification-close" onclick="this.parentElement.remove()">&times;</button>
+    `;
 
     container.appendChild(notification);
 
     // Автоматическое удаление через 3 секунды
     setTimeout(() => {
-        notification.remove();
+        if (notification.parentNode) {
+            notification.remove();
+        }
     }, 3000);
+
+    // Добавляем возможность закрыть уведомление кликом
+    notification.addEventListener('click', function(e) {
+        if (e.target !== notification.querySelector('.notification-close')) {
+            notification.remove();
+        }
+    });
 }
 
+// Красивая функция подтверждения
+function showConfirmDialog(message, onConfirm, onCancel) {
+    // Создаем модальное окно подтверждения
+    const modal = document.createElement('div');
+    modal.className = 'confirm-modal';
+    modal.innerHTML = `
+        <div class="confirm-content">
+            <div class="confirm-header">
+                <div class="confirm-icon">?</div>
+                <h3>Подтверждение</h3>
+            </div>
+            <div class="confirm-message">
+                ${message}
+            </div>
+            <div class="confirm-buttons">
+                <button class="confirm-btn cancel-btn" onclick="cancelConfirm()">Отмена</button>
+                <button class="confirm-btn confirm-btn-yes" onclick="acceptConfirm()">Да</button>
+            </div>
+        </div>
+    `;
+
+    // Добавляем стили если их еще нет
+    if (!document.getElementById('confirm-styles')) {
+        const styles = document.createElement('style');
+        styles.id = 'confirm-styles';
+        styles.textContent = `
+            .confirm-modal {
+                display: flex;
+                position: fixed;
+                z-index: 10000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                align-items: center;
+                justify-content: center;
+                animation: fadeIn 0.3s ease-in;
+            }
+
+            .confirm-content {
+                background: white;
+                border-radius: 12px;
+                padding: 30px;
+                max-width: 400px;
+                width: 90%;
+                text-align: center;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+                animation: slideInScale 0.3s ease-out;
+            }
+
+            .confirm-header {
+                margin-bottom: 20px;
+            }
+
+            .confirm-icon {
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                background: #ff9800;
+                color: white;
+                font-size: 30px;
+                font-weight: bold;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 15px;
+            }
+
+            .confirm-header h3 {
+                margin: 0;
+                color: #333;
+                font-size: 20px;
+            }
+
+            .confirm-message {
+                color: #666;
+                font-size: 16px;
+                margin-bottom: 25px;
+                line-height: 1.5;
+            }
+
+            .confirm-buttons {
+                display: flex;
+                gap: 15px;
+                justify-content: center;
+            }
+
+            .confirm-btn {
+                padding: 12px 25px;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: bold;
+                transition: all 0.3s ease;
+                min-width: 100px;
+            }
+
+            .cancel-btn {
+                background: #f5f5f5;
+                color: #666;
+            }
+
+            .cancel-btn:hover {
+                background: #e0e0e0;
+            }
+
+            .confirm-btn-yes {
+                background: #ff9800;
+                color: white;
+            }
+
+            .confirm-btn-yes:hover {
+                background: #f57c00;
+                transform: translateY(-1px);
+            }
+
+            @keyframes slideInScale {
+                from {
+                    opacity: 0;
+                    transform: scale(0.8) translateY(-20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: scale(1) translateY(0);
+                }
+            }
+
+            @media (max-width: 480px) {
+                .confirm-content {
+                    padding: 20px;
+                }
+                
+                .confirm-buttons {
+                    flex-direction: column;
+                }
+                
+                .confirm-btn {
+                    width: 100%;
+                }
+            }
+        `;
+        document.head.appendChild(styles);
+    }
+
+    // Функции для кнопок
+    window.acceptConfirm = function() {
+        document.body.removeChild(modal);
+        if (onConfirm) onConfirm();
+        delete window.acceptConfirm;
+        delete window.cancelConfirm;
+    };
+
+    window.cancelConfirm = function() {
+        document.body.removeChild(modal);
+        if (onCancel) onCancel();
+        delete window.acceptConfirm;
+        delete window.cancelConfirm;
+    };
+
+    // Закрытие по клику вне модального окна
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            window.cancelConfirm();
+        }
+    });
+
+    // Добавляем в DOM
+    document.body.appendChild(modal);
+}
 
 async function removeFromBasket(detailId) {
         try {

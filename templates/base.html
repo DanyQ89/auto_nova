@@ -7,6 +7,165 @@
     {% block styles %}
     {% endblock %}
 
+    <style>
+        /* Стили для системы уведомлений */
+        #notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 350px;
+        }
+
+        .notification {
+            background: white;
+            border-left: 4px solid #4CAF50;
+            border-radius: 6px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            margin-bottom: 10px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            animation: slideInRight 0.3s ease-out, fadeOut 0.3s ease-in 2.7s;
+            position: relative;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        }
+
+        .notification::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: inherit;
+            width: 100%;
+            animation: progress 3s linear;
+        }
+
+        .notification.success {
+            border-left-color: #4CAF50;
+            color: #2e7d32;
+        }
+
+        .notification.success::before {
+            background: #4CAF50;
+        }
+
+        .notification.error {
+            border-left-color: #f44336;
+            color: #c62828;
+        }
+
+        .notification.error::before {
+            background: #f44336;
+        }
+
+        .notification.warning {
+            border-left-color: #ff9800;
+            color: #f57c00;
+        }
+
+        .notification.warning::before {
+            background: #ff9800;
+        }
+
+        .notification.info {
+            border-left-color: #2196F3;
+            color: #1565c0;
+        }
+
+        .notification.info::before {
+            background: #2196F3;
+        }
+
+        .notification strong {
+            font-size: 18px;
+            margin-right: 10px;
+            font-weight: 600;
+        }
+
+        .notification span {
+            font-size: 14px;
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 18px;
+            margin-left: 10px;
+            opacity: 0.7;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification-close:hover {
+            opacity: 1;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
+
+        @keyframes progress {
+            from {
+                width: 100%;
+            }
+            to {
+                width: 0%;
+            }
+        }
+
+        /* Адаптивность для мобильных устройств */
+        @media (max-width: 768px) {
+            #notification-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+
+            .notification {
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+
+            .notification strong {
+                font-size: 16px;
+            }
+
+            .notification span {
+                font-size: 13px;
+            }
+        }
+    </style>
+
     <title>AutoNova.ru</title>
 </head>
 <body>
@@ -30,7 +189,7 @@
     </div>
 </header>
 
-<div id="notification-container" style="position: fixed; top: 20px; right: 20px; z-index: 1000;"></div>
+<div id="notification-container"></div>
 
 <main role="main" class="container">
     {% block content %}
