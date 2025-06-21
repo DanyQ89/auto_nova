@@ -53,11 +53,57 @@
         <div>
             <button type="submit" class="submit-button">Сохранить</button>
         </div>
+        <div style="text-align: center; margin: 10px 0;">
+            <button type="button" id="forgotPasswordBtn" class="forgot-password-button">Забыл пароль</button>
+        </div>
         <p>Нет акккаунта? <a href="/register">Зарегистрироваться</a></p>
     </form>
 
 </main>
 <script src="./static/js/scripts.js"></script>
+<script>
+document.getElementById('forgotPasswordBtn').addEventListener('click', function() {
+    const phoneInput = document.querySelector('input[name="phone"]');
+    const phone = phoneInput.value.trim();
+    
+    if (!phone) {
+        alert('Пожалуйста, введите номер телефона для восстановления пароля');
+        phoneInput.focus();
+        return;
+    }
+    
+    if (confirm('Отправить новый пароль на email, привязанный к номеру ' + phone + '?')) {
+        // Показываем индикатор загрузки
+        this.disabled = true;
+        this.textContent = 'Отправляем...';
+        
+        fetch('/forgot_password', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ phone: phone })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.success);
+            } else {
+                alert('Ошибка: ' + (data.error || 'Неизвестная ошибка'));
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Ошибка при отправке запроса');
+        })
+        .finally(() => {
+            // Восстанавливаем кнопку
+            this.disabled = false;
+            this.textContent = 'Забыл пароль';
+        });
+    }
+});
+</script>
 
 </body>
 </html>

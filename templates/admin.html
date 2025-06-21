@@ -46,7 +46,8 @@
             <th>Оригинальный номер</th> <!-- Новый столбец -->
             <th>Процент</th> <!-- Новый столбец -->
             <th>Фото</th> <!-- Новый столбец -->
-            <th></th>
+            <th>Добавить фото</th>
+            <th>Действия</th>
         </tr>
         </thead>
         <tbody>
@@ -77,6 +78,11 @@
             <td>
                 <button class="add-photo-button" onclick="document.getElementById('file-input-{{ detail.id }}').click()">Добавить фото</button>
                 <input type="file" id="file-input-{{ detail.id }}" style="display:none;" onchange="uploadPhoto('{{ detail.id }}')">
+            </td>
+            <td>
+                <button class="delete-button" onclick="confirmDeleteDetail({{ detail.id }}, '{{ detail.name }}')">
+                    <i class="fas fa-trash"></i> Удалить
+                </button>
             </td>
         </tr>
         {% endfor %}
@@ -221,6 +227,36 @@
 </div>
 
 <script src="./static/js/scripts.js"></script>
+<script>
+function confirmDeleteDetail(detailId, detailName) {
+    if (confirm(`Вы точно хотите удалить деталь "${detailName}"?\n\nЭто действие нельзя отменить!`)) {
+        deleteDetail(detailId);
+    }
+}
+
+function deleteDetail(detailId) {
+    fetch(`/delete_detail/${detailId}`, {
+        method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Удаляем строку из таблицы
+            const row = document.querySelector(`tr[ondblclick*="${detailId}"]`);
+            if (row) {
+                row.remove();
+            }
+            alert('Деталь успешно удалена!');
+        } else {
+            alert('Ошибка при удалении: ' + (data.error || 'Неизвестная ошибка'));
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+        alert('Ошибка при удалении детали');
+    });
+}
+</script>
 
 {% endblock %}
 

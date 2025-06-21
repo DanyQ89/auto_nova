@@ -365,8 +365,14 @@ function closePhotoModal() {
     modal.style.display = "none"; // Скрываем модальное окно
 }
 
-function showNotification(message, type = 'success') {
+function showNotification(message, type = 'success', duration = 3000) {
     const container = document.getElementById('notification-container');
+    
+    if (!container) {
+        console.error('Контейнер для уведомлений не найден');
+        return;
+    }
+    
     const notification = document.createElement('div');
 
     // Настройки иконок в зависимости от типа
@@ -386,19 +392,42 @@ function showNotification(message, type = 'success') {
 
     container.appendChild(notification);
 
-    // Автоматическое удаление через 3 секунды
-    setTimeout(() => {
+    // Автоматическое удаление через указанное время
+    const timeoutId = setTimeout(() => {
         if (notification.parentNode) {
-            notification.remove();
+            notification.style.animation = 'fadeOut 0.3s ease-in forwards';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 300);
         }
-    }, 3000);
+    }, duration);
 
-    // Добавляем возможность закрыть уведомление кликом
-    notification.addEventListener('click', function(e) {
-        if (e.target !== notification.querySelector('.notification-close')) {
-            notification.remove();
-        }
+    // Добавляем возможность закрыть уведомление кликом на крестик
+    const closeButton = notification.querySelector('.notification-close');
+    closeButton.addEventListener('click', function(e) {
+        e.stopPropagation();
+        clearTimeout(timeoutId);
+        notification.style.animation = 'fadeOut 0.3s ease-in forwards';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 300);
     });
+    
+    // Ограничиваем количество уведомлений на экране
+    const notifications = container.querySelectorAll('.notification');
+    if (notifications.length > 5) {
+        const oldest = notifications[0];
+        oldest.style.animation = 'fadeOut 0.3s ease-in forwards';
+        setTimeout(() => {
+            if (oldest.parentNode) {
+                oldest.remove();
+            }
+        }, 300);
+    }
 }
 
 // Красивая функция подтверждения

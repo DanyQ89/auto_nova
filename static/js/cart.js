@@ -54,38 +54,41 @@ function processOrder() {
     .then(data => {
         console.log('Ответ сервера:', data);
         
-        // ВСЕГДА показываем модальное окно благодарности
-        openThankYouModal();
-        
-        // Очищаем корзину в интерфейсе
-        cartItems.innerHTML = '';
-        
-        // Обновляем итоговые суммы
-        const totalElement = document.getElementById('total');
-        const totalCardElement = document.getElementById('totalCard');
-        if (totalElement) totalElement.textContent = 'Итого: 0 руб.';
-        if (totalCardElement) totalCardElement.textContent = 'Итого по карте: 0 руб.';
-        
-        // Скрываем кнопку заказа
-        orderButton.style.display = 'none';
-        
-        console.log('Заказ обработан, модальное окно показано');
+        if (data.success) {
+            // Успешное оформление заказа
+            openThankYouModal();
+            
+            // Очищаем корзину в интерфейсе
+            cartItems.innerHTML = '';
+            
+            // Обновляем итоговые суммы
+            const totalElement = document.getElementById('total');
+            const totalCardElement = document.getElementById('totalCard');
+            if (totalElement) totalElement.textContent = 'Итого: 0 руб.';
+            if (totalCardElement) totalCardElement.textContent = 'Итого по карте: 0 руб.';
+            
+            // Скрываем кнопку заказа
+            orderButton.style.display = 'none';
+            
+            console.log('Заказ обработан, модальное окно показано');
+        } else if (data.error === 'removed_items') {
+            // Некоторые товары были удалены
+            showNotification(data.message, 'warning', 8000);
+            
+            // Перезагружаем страницу чтобы показать обновленную корзину
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        } else {
+            // Другие ошибки
+            showNotification(data.error || 'Произошла ошибка при обработке заказа', 'error');
+        }
     })
     .catch(error => {
         console.error('Ошибка при обработке заказа:', error);
         
-        // Даже при ошибке показываем модальное окно благодарности
-        openThankYouModal();
-        
-        // Очищаем корзину
-        cartItems.innerHTML = '';
-        const totalElement = document.getElementById('total');
-        const totalCardElement = document.getElementById('totalCard');
-        if (totalElement) totalElement.textContent = 'Итого: 0 руб.';
-        if (totalCardElement) totalCardElement.textContent = 'Итого по карте: 0 руб.';
-        orderButton.style.display = 'none';
-        
-        console.log('Даже при ошибке показано модальное окно благодарности');
+        // При сетевой ошибке
+        showNotification('Ошибка связи с сервером. Попробуйте еще раз.', 'error');
     })
     .finally(() => {
         // Восстанавливаем кнопку (на случай если что-то пошло не так)

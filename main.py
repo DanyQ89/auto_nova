@@ -9,7 +9,9 @@ from utils.config import (
     ORDER_SUCCESS_MESSAGE, EMAIL_SETTINGS, CONTACT_INFO
 )
 from utils.help_functions import get_number
-from forms.user import RegisterUser, LoginUser
+import string
+import random
+from forms.user import RegisterUser, LoginUser, ChangePasswordForm
 from data.database import create_session, global_init
 from data.users import User, Detail, Basket, basket_details, Photo
 import base64
@@ -376,6 +378,7 @@ def enter_data():
         if not user:
             new_user = User(
                 name=form.name.data,
+                email=form.email.data,
                 phone=form.phone.data,
                 address=form.address.data
             )
@@ -384,6 +387,7 @@ def enter_data():
             flash('Контактные данные успешно добавлены!', 'success')
         else:
             user.name = form.name.data
+            user.email = form.email.data
             user.phone = form.phone.data
             user.address = form.address.data
             session.commit()
@@ -403,11 +407,20 @@ def register():
             return render_template('register.html',
                                    form=form,
                                    message='Неверный формат номера')
-        user = session.query(User).filter(User.phone == phone).first()
+        # Проверяем уникальность телефона и email
+        existing_phone = session.query(User).filter(User.phone == phone).first()
+        existing_email = session.query(User).filter(User.email == form.email.data).first()
 
-        if not user:
+        if existing_email:
+            session.close()
+            return render_template('register.html',
+                                   form=form,
+                                   message='Пользователь с таким email уже зарегистрирован')
+
+        if not existing_phone:
             new_user = User(
                 name=form.name.data,
+                email=form.email.data,
                 phone=phone,
                 address=form.address.data,
                 password=form.password.data
@@ -465,6 +478,46 @@ def get_photo(detail_id):
         session.close()
 
 
+@app.route('/delete_detail/<int:detail_id>', methods=['DELETE'])
+def delete_detail(detail_id):
+    if not current_user.__dict__ or current_user.phone not in ['boss']:
+        return jsonify({
+            "error": 777,
+            "message": "you don`t have the rights for this action"
+        }), 403
+
+    session = create_session()
+    try:
+        detail = session.query(Detail).filter(Detail.id == detail_id).first()
+        
+        if not detail:
+            return jsonify({'error': 'Деталь не найдена'}), 404
+        
+        # Удаляем связи из всех корзин
+        session.execute(
+            basket_details.delete().where(basket_details.c.detail_id == detail_id)
+        )
+        
+        # Удаляем связанные фотографии
+        photos_to_delete = session.query(Photo).filter(Photo.detail_id == detail_id).all()
+        for photo in photos_to_delete:
+            session.delete(photo)
+        
+        # Удаляем саму деталь
+        session.delete(detail)
+        session.commit()
+        
+        return jsonify({'success': 'Деталь успешно удалена'}), 200
+        
+    except Exception as e:
+        session.rollback()
+        print(f"Ошибка при удалении детали: {e}")
+        return jsonify({'error': 'Произошла ошибка при удалении детали'}), 500
+    
+    finally:
+        session.close()
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginUser()
@@ -477,6 +530,7 @@ def login():
                 if not user:
                     admin = User(
                         name='BOSS',
+                        email='admin@autonova.ru',
                         phone='boss',
                         address='СПБ',
                         password='51974376'
@@ -515,6 +569,53 @@ def login():
     return render_template('login.html', form=form)
 
 
+@app.route("/forgot_password", methods=["POST"])
+def forgot_password():
+    phone = request.json.get('phone')
+    
+    if not phone:
+        return jsonify({'error': 'Номер телефона не указан'}), 400
+    
+    session = create_session()
+    
+    try:
+        # Проверяем формат номера
+        formatted_phone = get_number(phone)
+        if not formatted_phone:
+            return jsonify({'error': 'Неверный формат номера телефона'}), 400
+        
+        # Ищем пользователя
+        user = session.query(User).filter(User.phone == formatted_phone).first()
+        
+        if not user:
+            return jsonify({'error': 'Пользователь с таким номером не найден'}), 404
+        
+        # Проверяем наличие email у пользователя
+        if not user.email:
+            return jsonify({'error': 'У пользователя не указан email адрес. Обратитесь к менеджеру.'}), 400
+        
+        # Генерируем новый пароль
+        new_password = generate_password()
+        
+        # Обновляем пароль в базе
+        user.password = new_password
+        session.commit()
+        
+        # Отправляем пароль на email
+        if send_password_reset_email(user, new_password):
+            return jsonify({'success': f'Новый пароль отправлен на ваш email: {user.email}'}), 200
+        else:
+            return jsonify({'success': 'Пароль сброшен успешно, но не удалось отправить email. Обратитесь к менеджеру.'}), 200
+            
+    except Exception as e:
+        session.rollback()
+        print(f"Ошибка при восстановлении пароля: {e}")
+        return jsonify({'error': 'Произошла ошибка при восстановлении пароля'}), 500
+    
+    finally:
+        session.close()
+
+
 @app.route("/edit_profile", methods=["GET", "POST"])
 def edit_profile():
     session = create_session()
@@ -522,6 +623,7 @@ def edit_profile():
     form = RegisterUser(obj=user)
     if form.validate_on_submit():
         user.name = form.name.data
+        user.email = form.email.data
         user.address = form.address.data
         user.password = form.password.data
         session.commit()
@@ -530,6 +632,58 @@ def edit_profile():
 
     session.close()  # Закрываем сессию
     return render_template('edit_user.html', form=form)
+
+
+@app.route("/change_password", methods=["GET", "POST"])
+@login_required
+def change_password():
+    form = ChangePasswordForm()
+    
+    if form.validate_on_submit():
+        session = create_session()
+        
+        try:
+            user = session.get(User, current_user.id)
+            
+            # Проверяем текущий пароль
+            if user.password != form.current_password.data:
+                flash('Неверный текущий пароль', 'error')
+                session.close()
+                return render_template('change_password.html', form=form)
+            
+            # Проверяем требования к новому паролю
+            new_password = form.new_password.data
+            
+            # Дополнительная валидация пароля
+            if len(new_password) < 6:
+                flash('Пароль должен содержать минимум 6 символов', 'error')
+                session.close()
+                return render_template('change_password.html', form=form)
+            
+            # Проверяем наличие латинских букв и цифр
+            has_letter = any(c.isalpha() for c in new_password)
+            has_digit = any(c.isdigit() for c in new_password)
+            
+            if not (has_letter and has_digit):
+                flash('Пароль должен содержать как минимум одну букву и одну цифру', 'error')
+                session.close()
+                return render_template('change_password.html', form=form)
+            
+            # Обновляем пароль
+            user.password = new_password
+            session.commit()
+            flash('Пароль успешно изменен!', 'success')
+            
+            session.close()
+            return redirect('/edit_profile')
+            
+        except Exception as e:
+            session.rollback()
+            print(f"Ошибка при смене пароля: {e}")
+            flash('Произошла ошибка при смене пароля', 'error')
+            session.close()
+    
+    return render_template('change_password.html', form=form)
 
 
 @login_manager.user_loader
@@ -565,12 +719,54 @@ def process_order():
         if not user:
             return jsonify({'error': 'Пользователь не найден'}), 404
         
-        # Формируем информацию о заказе
+        # Проверяем наличие каждого товара в базе
+        available_details = []
+        unavailable_details = []
+        
+        for detail in user_basket.details:
+            # Проверяем, существует ли деталь в базе
+            existing_detail = session.query(Detail).filter(Detail.id == detail.id).first()
+            if existing_detail:
+                available_details.append(detail)
+            else:
+                unavailable_details.append(detail)
+        
+        # Если есть недоступные товары, удаляем их из корзины
+        if unavailable_details:
+            for unavailable_detail in unavailable_details:
+                # Удаляем связь из корзины
+                session.execute(
+                    basket_details.delete().where(
+                        (basket_details.c.basket_id == user_basket.id) &
+                        (basket_details.c.detail_id == unavailable_detail.id)
+                    )
+                )
+            session.commit()
+            
+            # Если корзина стала пустой
+            if not available_details:
+                session.close()
+                return jsonify({
+                    'error': 'removed_items',
+                    'message': 'Все товары из вашей корзины были куплены другими покупателями. Корзина очищена.',
+                    'removed_count': len(unavailable_details)
+                }), 400
+            
+            # Если часть товаров недоступна
+            session.close()
+            return jsonify({
+                'error': 'removed_items',
+                'message': f'Некоторые товары ({len(unavailable_details)} шт.) были куплены другими покупателями и удалены из корзины. Попробуйте оформить заказ снова.',
+                'removed_count': len(unavailable_details),
+                'remaining_count': len(available_details)
+            }), 400
+        
+        # Формируем информацию о заказе только из доступных товаров
         order_details = []
         total_price = 0
         total_card_price = 0
         
-        for detail in user_basket.details:
+        for detail in available_details:
             detail_info = {
                 'article': detail.ID_detail,
                 'brand': detail.brand,
@@ -592,7 +788,7 @@ def process_order():
                 pass
         
         # Получаем ID деталей для удаления
-        detail_ids = [detail.id for detail in user_basket.details]
+        detail_ids = [detail.id for detail in available_details]
         
         # Отправляем email Сергею перед удалением (чтобы данные были доступны)
         send_order_email(user, order_details, total_price, total_card_price)
@@ -624,6 +820,85 @@ def process_order():
     
     finally:
         session.close()
+
+
+def generate_password(length=9):
+    """Генерирует случайный пароль из латинских букв и цифр"""
+    characters = string.ascii_letters + string.digits
+    return ''.join(random.choice(characters) for _ in range(length))
+
+
+def send_password_reset_email(user, new_password):
+    """Отправляет новый пароль на email пользователя"""
+    try:
+        # Проверяем наличие настроек email
+        if not app.config.get('MAIL_USERNAME') or app.config['MAIL_USERNAME'] == 'your-email@gmail.com':
+            print("⚠️ Email не настроен - установите переменные окружения MAIL_USERNAME и MAIL_PASSWORD")
+            return False
+            
+        # Формируем HTML содержимое письма
+        html_content = f"""
+        <html>
+        <head>
+            <style>
+                body {{ font-family: Arial, sans-serif; }}
+                .header {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; }}
+                .content {{ padding: 20px; }}
+                .password-box {{ background: #f8f9fa; border: 2px solid #007bff; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0; }}
+                .password {{ font-size: 24px; font-weight: bold; color: #007bff; letter-spacing: 3px; }}
+                .warning {{ background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 8px; margin: 20px 0; }}
+                .footer {{ text-align: center; color: #6c757d; font-style: italic; margin-top: 30px; }}
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h2>🚗 AutoNova - Восстановление пароля</h2>
+            </div>
+            
+            <div class="content">
+                <p>Здравствуйте, <strong>{user.name}</strong>!</p>
+                
+                <p>Наш сервис AutoNova высылает вам новый пароль для входа в личный кабинет:</p>
+                
+                <div class="password-box">
+                    <div class="password">{new_password}</div>
+                </div>
+                
+                <div class="warning">
+                    <p><strong>⚠️ Важно:</strong></p>
+                    <ul>
+                        <li>Сохраните этот пароль в надежном месте</li>
+                        <li>Рекомендуем сменить пароль после входа в личный кабинет</li>
+                        <li>Не передавайте пароль третьим лицам</li>
+                    </ul>
+                </div>
+                
+                <p>Теперь вы можете войти в систему, используя ваш номер телефона <strong>{user.phone}</strong> и новый пароль.</p>
+                
+                <div class="footer">
+                    <p>Письмо отправлено автоматически с сайта AutoNova</p>
+                    <p>Если вы не запрашивали восстановление пароля, проигнорируйте это письмо</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # Создаем и отправляем письмо с Flask-Mail
+        with app.app_context():
+            msg = Message()
+            msg.subject = "🚗 AutoNova: Восстановление пароля"
+            msg.recipients = [user.email]  # Отправляем на email пользователя
+            msg.html = html_content
+            msg.sender = app.config['MAIL_DEFAULT_SENDER']
+            
+            mail.send(msg)
+            print(f"✅ Пароль отправлен на {user.email}")
+            return True
+        
+    except Exception as e:
+        print(f"❌ Ошибка при отправке пароля: {e}")
+        return False
 
 
 def send_order_email(user, order_details, total_price, total_card_price):
@@ -659,6 +934,7 @@ def send_order_email(user, order_details, total_price, total_card_price):
                 <div class="customer-info">
                     <h3>👤 Информация о клиенте:</h3>
                     <p><strong>Имя:</strong> {user.name or 'Не указано'}</p>
+                    <p><strong>Email:</strong> {user.email or 'Не указан'}</p>
                     <p><strong>Телефон:</strong> {user.phone or 'Не указан'}</p>
                     <p><strong>Адрес:</strong> {user.address or 'Не указан'}</p>
                 </div>
@@ -704,7 +980,7 @@ def send_order_email(user, order_details, total_price, total_card_price):
                 
                 <div class="footer">
                     <p>Письмо отправлено автоматически с сайта AutoNova</p>
-                    <p>📧 Для связи: {user.phone} | 📍 {user.address}</p>
+                    <p>📧 Email: {user.email} | 📞 Телефон: {user.phone} | 📍 Адрес: {user.address}</p>
                 </div>
             </div>
         </body>

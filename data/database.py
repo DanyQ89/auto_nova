@@ -18,7 +18,7 @@ def global_init():
     #     db_url = db_url.replace("postgres://", "postgresql://", 1)
     # postgresql://username:password@hostname:port/database
 
-    url = 'postgresql://autonova_user:z22NMhDXEQuDGEVh120XBDQR7XDHTLmh@dpg-d189fbuuk2gs73fmis7g-a.oregon-postgres.render.com/autonova'
+    url = 'postgresql://autonova_4ouz_user:NMZ7nt0fNY0QEcDGMGqQZF288GMJnLE0@dpg-d1akqk15pdvs73auhlpg-a.oregon-postgres.render.com:5432/autonova_4ouz'
     engine = create_engine(url)
     __factory = sessionmaker(bind=engine)
 
