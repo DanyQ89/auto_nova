@@ -85,21 +85,26 @@ def edit_photo(photo_id):
 
     if not photo:
         session.close()
-        return {'status': 'error', 'message': 'Фото не найдено'}, 404
+        return jsonify({'status': 'error', 'message': 'Фото не найдено'}), 404
 
     if 'file' not in request.files:
         session.close()
-        return {'status': 'error', 'message': 'Нет файла для загрузки'}, 400
+        return jsonify({'status': 'error', 'message': 'Нет файла для загрузки'}), 400
 
     file = request.files.get('file')
-    if file:
-        photo.photo = file.read()
-        session.commit()
-        session.close()
-        return {'status': 'success', 'message': 'Фото успешно обновлено!'}, 200
+    if file and file.filename:
+        try:
+            photo.photo = file.read()
+            session.commit()
+            session.close()
+            return jsonify({'status': 'success', 'message': 'Фото успешно обновлено!'}), 200
+        except Exception as e:
+            session.rollback()
+            session.close()
+            return jsonify({'status': 'error', 'message': f'Ошибка при обновлении фото: {str(e)}'}), 500
     else:
         session.close()
-        return {'status': 'error', 'message': 'Файл отсутствует'}, 400
+        return jsonify({'status': 'error', 'message': 'Файл отсутствует или пустой'}), 400
 
 
 @app.route('/delete_photo/<int:photo_id>', methods=['DELETE'])
@@ -109,35 +114,56 @@ def delete_photo(photo_id):
 
     if not photo:
         session.close()
-        return {'status': 'error', 'message': 'Фото не найдено'}, 404
+        return jsonify({'status': 'error', 'message': 'Фото не найдено'}), 404
+
+    # Проверяем, сколько фотографий у детали
+    detail_photos = session.query(Photo).filter(Photo.detail_id == photo.detail_id).all()
+    
+    if len(detail_photos) <= 1:
+        session.close()
+        return jsonify({'status': 'error', 'message': 'Нельзя удалить последнюю фотографию детали'}), 400
 
     session.delete(photo)
     session.commit()
     session.close()
-    return {'status': 'success', 'message': 'Фото успешно удалено!'}, 200
+    return jsonify({'status': 'success', 'message': 'Фото успешно удалено!'}), 200
 
 
 @app.route('/add_photo', methods=['POST'])
 def add_photo():
     print("catch add photo", request.form.get('detail_id'))
     detail_id = request.form.get('detail_id')
+    
+    if not detail_id:
+        return jsonify({'status': 'error', 'message': 'ID детали не указан'}), 400
+        
     if 'file' not in request.files:
-        return {'status': 'error', 'message': 'Нет файла для загрузки'}, 400
+        return jsonify({'status': 'error', 'message': 'Нет файла для загрузки'}), 400
 
-    file = request.files.get('file')  # Получаем один файл
+    file = request.files.get('file')
     session = create_session()
-    detail = session.query(Detail).filter(Detail.id == detail_id).first()
+    
+    try:
+        detail = session.query(Detail).filter(Detail.id == detail_id).first()
 
-    if detail and file:
-        new_photo = Photo(detail_id=detail.id, photo=file.read())
-        print("Ok")
-        session.add(new_photo)
-        session.commit()
+        if not detail:
+            session.close()
+            return jsonify({'status': 'error', 'message': 'Деталь не найдена'}), 404
+
+        if file and file.filename:
+            new_photo = Photo(detail_id=detail.id, photo=file.read())
+            session.add(new_photo)
+            session.commit()
+            session.close()
+            return jsonify({'status': 'success', 'message': 'Фото успешно добавлено!'}), 200
+        else:
+            session.close()
+            return jsonify({'status': 'error', 'message': 'Файл отсутствует или пустой'}), 400
+            
+    except Exception as e:
+        session.rollback()
         session.close()
-        return {'status': 'success', 'message': 'Фото обновлено успешно!'}, 200
-    else:
-        session.close()
-        return {'status': 'error', 'message': 'Деталь не найдена или файл отсутствует'}, 404
+        return jsonify({'status': 'error', 'message': f'Ошибка при добавлении фото: {str(e)}'}), 500
 
 
 @app.route('/update_detail/<int:detail_id>', methods=['GET'])
@@ -190,51 +216,49 @@ async def add_detail():
             color=request.form.get('color', ''),
         )
 
-        # Обработка загрузки файлов
-        photo = request.files.get('photo')
-        if photo:
-            new_photo = Photo(detail=new_detail, photo=photo.read())
-            session.add(new_photo)
+        # Обработка загрузки множественных файлов
+        photos = request.files.getlist('photos')
+        for photo in photos:
+            if photo and photo.filename:  # Проверяем, что файл существует и имеет имя
+                new_photo = Photo(detail=new_detail, photo=photo.read())
+                session.add(new_photo)
 
         session.add(new_detail)
         session.commit()
-        flash('Деталь успешно добавлена!', 'success')
-
+        session.close()
+        return redirect('/admin')
     else:
+        # Обновление существующей детали
         detail_id = request.form['id']
         detail = session.query(Detail).filter(Detail.id == detail_id).first()
-
-        if not detail:
-            flash('Деталь не найдена!', 'error')
+        
+        if detail:
+            detail.sklad = request.form['sklad']
+            detail.ID_detail = request.form['ID_detail']
+            detail.brand = request.form['brand']
+            detail.model_and_year = request.form['model_and_year']
+            detail.name = request.form['name']
+            detail.price = request.form['price']
+            detail.price_w_discount = request.form.get('price_w_discount', '')
+            detail.comment = request.form.get('comment', '')
+            detail.orig_number = request.form.get('orig_number', '')
+            detail.condition = request.form.get('condition', '')
+            detail.percent = request.form.get('percent', 0)
+            detail.color = request.form.get('color', '')
+            
+            # Обработка загрузки множественных файлов для редактирования
+            photos = request.files.getlist('photos')
+            for photo in photos:
+                if photo and photo.filename:  # Проверяем, что файл существует и имеет имя
+                    new_photo = Photo(detail=detail, photo=photo.read())
+                    session.add(new_photo)
+            
+            session.commit()
             session.close()
             return redirect('/admin')
-
-        # Обновляем поля детали
-        detail.creator_id = request.form.get('creator_id', detail.creator_id)
-        detail.sklad = request.form.get('sklad', detail.sklad)
-        detail.ID_detail = request.form.get('ID_detail', detail.ID_detail)
-        detail.brand = request.form.get('brand', detail.brand)
-        detail.model_and_year = request.form.get('model_and_year', detail.model_and_year)
-        detail.name = request.form.get('name', detail.name)
-        detail.price = request.form.get('price', detail.price)
-        detail.price_w_discount = request.form.get('price_w_discount', detail.price_w_discount)
-        detail.comment = request.form.get('comment', detail.comment)
-        detail.orig_number = request.form.get('orig_number', detail.orig_number)
-        detail.condition = request.form.get('condition', detail.condition)
-        detail.percent = request.form.get('percent', detail.percent)
-        detail.color = request.form.get('color', detail.color)
-
-        # Обработка загрузки файлов
-        photo = request.files.get('photo')
-        if photo:
-            new_photo = Photo(detail_id=detail.id, photo=photo.read())
-            session.add(new_photo)
-
-        session.commit()
-        flash('Деталь успешно обновлена!', 'success')
-
-    session.close()
-    return redirect('/admin')
+        else:
+            session.close()
+            return jsonify({'error': 'Деталь не найдена'}), 404
 
 
 @app.route("/remove_from_basket/<string:detail_id>", methods=["POST"])

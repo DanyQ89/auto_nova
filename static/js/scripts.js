@@ -1,47 +1,124 @@
-// Получаем модальное окно
-var modal = document.getElementById("detailModal");
+// Глобальные переменные для работы с файлами
+let selectedFiles = [];
 
-// Получаем кнопку, которая открывает модальное окно
-var btn = document.getElementById("addDetailBtn");
+// Глобальные переменные для работы с фотографиями
+let currentPhotoIndex = 0;
+let photoData = [];
+let currentDetailId = null;
 
-// Получаем элемент <span>, который закрывает модальное окно
-var span = document.getElementsByClassName("close")[0];
+// Глобальные переменные для модальных окон
+let modal, photoModal;
 
-// Когда пользователь нажимает на кнопку, открывается модальное окно
-if (btn) {
-    btn.onclick = function() {
-        openModal('add');
+// Обработчик для множественного выбора файлов
+document.addEventListener('DOMContentLoaded', function() {
+    // Инициализация модальных окон
+    modal = document.getElementById("detailModal");
+    photoModal = document.getElementById("photoModal");
+    
+    // Получаем кнопку, которая открывает модальное окно
+    const btn = document.getElementById("addDetailBtn");
+    
+    // Получаем элемент <span>, который закрывает модальное окно
+    const span = document.getElementsByClassName("close")[0];
+
+    // Когда пользователь нажимает на кнопку, открывается модальное окно
+    if (btn) {
+        btn.onclick = function() {
+            openModal('add');
+        };
+    }
+
+    // Когда пользователь нажимает на <span> (x), закрывается модальное окно
+    if (span) {
+        span.onclick = function() {
+            closeModal();
+        };
+    }
+    
+    // Инициализация обработчика файлов
+    const photosInput = document.getElementById('photos');
+    if (photosInput) {
+        photosInput.addEventListener('change', handleFileSelection);
+    }
+    
+    // Инициализация обработчика кликов вне модального окна
+    window.onclick = function(event) {
+        const menu = document.getElementById('menu');
+        const hamburger = document.querySelector('.hamburger');
+
+        // Проверяем, был ли клик вне меню и вне гамбургера
+        if (event.target !== menu && event.target !== hamburger && menu && menu.classList.contains('active')){
+            menu.classList.remove('active');
+        } else if (event.target === modal) {
+            closeModal();
+        } else if (event.target === photoModal) {
+            closePhotoModal();
+        }
     };
+});
+
+function handleFileSelection(event) {
+    const files = Array.from(event.target.files);
+    selectedFiles = files;
+    
+    const fileInfo = document.getElementById('file-info');
+    const fileCount = document.getElementById('file-count');
+    const fileList = document.getElementById('file-list');
+    
+    if (files.length > 0) {
+        fileInfo.style.display = 'block';
+        fileCount.textContent = files.length;
+        
+        fileList.innerHTML = '';
+        files.forEach((file, index) => {
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+            fileItem.innerHTML = `
+                <span class="file-name">${file.name}</span>
+                <span class="file-size">${formatFileSize(file.size)}</span>
+                <button class="remove-file" onclick="removeFile(${index})">&times;</button>
+            `;
+            fileList.appendChild(fileItem);
+        });
+    } else {
+        fileInfo.style.display = 'none';
+    }
 }
 
-// Когда пользователь нажимает на <span> (x), закрывается модальное окно
-if (span) {
-    span.onclick = function() {
-        closeModal();
-    };
+function removeFile(index) {
+    selectedFiles.splice(index, 1);
+    
+    // Обновляем input
+    const photosInput = document.getElementById('photos');
+    const dt = new DataTransfer();
+    selectedFiles.forEach(file => dt.items.add(file));
+    photosInput.files = dt.files;
+    
+    // Обновляем отображение
+    handleFileSelection({ target: { files: selectedFiles } });
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
 function toggleMenu() {
     const menu = document.getElementById('menu');
     menu.classList.toggle('active');
 }
-// Когда пользователь нажимает в любом месте вне модального окна, оно закрывается
-window.onclick = function(event) {
-    const menu = document.getElementById('menu');
-    const hamburger = document.querySelector('.hamburger'); // Получаем элемент гамбургера
-
-    // Проверяем, был ли клик вне меню и вне гамбургера
-    if (event.target !== menu && event.target !== hamburger && menu.classList.contains('active')){
-        menu.classList.remove('active'); // Закрываем меню
-    } else if (event.target === modal) {
-        closeModal();
-    } else if (event.target === photoModal) {
-        closePhotoModal();
-    }
-};
 
 // Функция для открытия модального окна
 function openModal(action, detail = {}) {
+    // Проверяем, что модальное окно существует
+    if (!modal) {
+        console.error('Модальное окно не найдено');
+        return;
+    }
+    
     const title = document.getElementById('modalTitle');
     const detailId = document.getElementById('detailId');
     const nameInput = document.getElementById('name');
@@ -58,6 +135,8 @@ function openModal(action, detail = {}) {
     const brandInput = document.getElementById('brand');
     const modelAndYearInput = document.getElementById('model_and_year');
     const submitButton = document.getElementById('submitButton');
+    const photosInput = document.getElementById('photos');
+    const fileInfo = document.getElementById('file-info');
 
     if (action === 'edit') {
         title.textContent = 'Редактировать деталь';
@@ -96,12 +175,30 @@ function openModal(action, detail = {}) {
         colorInput.value = '';
         submitButton.textContent = 'Сохранить';
     }
+    
+    // Очистка файлов
+    selectedFiles = [];
+    if (photosInput) photosInput.value = '';
+    if (fileInfo) fileInfo.style.display = 'none';
+    
     modal.style.display = 'block';
 }
 
 // Функция для закрытия модального окна
 function closeModal() {
+    if (!modal) {
+        console.error('Модальное окно не найдено');
+        return;
+    }
+    
     modal.style.display = 'none';
+    
+    // Очистка файлов при закрытии
+    selectedFiles = [];
+    const photosInput = document.getElementById('photos');
+    const fileInfo = document.getElementById('file-info');
+    if (photosInput) photosInput.value = '';
+    if (fileInfo) fileInfo.style.display = 'none';
 }
 
 // Функция для редактирования детали
@@ -114,22 +211,25 @@ function editDetail(detailId) {
         .catch(error => console.error('Ошибка:', error));
 }
 
-// Глобальные переменные для работы с фотографиями
-let currentPhotoIndex = 0;
-let photoData = [];
-let currentDetailId = null;
-
 async function fetchPhoto(detailId) {
     try {
         currentDetailId = detailId;
-        const response = await fetch(`/photo/${detailId}`); // Запрос на сервер для получения фото
+        const response = await fetch(`/photo/${detailId}`);
+        
         if (!response.ok) {
-            throw new Error('Network response was not ok');
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-        photoData = await response.json(); // Получаем данные изображения как массив
-        openPhotoModal(photoData); // Открываем модальное окно с изображениями
+        
+        photoData = await response.json();
+        
+        if (photoData.length === 0) {
+            showNotification('У этой детали нет фотографий', 'info');
+        }
+        
+        openPhotoModal(photoData);
     } catch (error) {
         console.error('Ошибка при получении фото:', error);
+        showNotification('Ошибка при загрузке фотографий', 'error');
     }
 }
 
@@ -178,11 +278,23 @@ function updateCarouselButtons() {
         nextButton.style.display = 'flex';
     }
     
-    // Скрываем кнопку удаления, если фотографий нет
-    if (photoData.length === 0) {
+    // Скрываем кнопку удаления, если фотографий нет или только одна
+    if (photoData.length <= 1) {
         deleteButton.style.display = 'none';
     } else {
         deleteButton.style.display = 'flex';
+    }
+    
+    // Обновляем счетчик
+    const currentPhotoIndexElement = document.getElementById('current-photo-index');
+    const totalPhotosElement = document.getElementById('total-photos');
+    
+    if (currentPhotoIndexElement) {
+        currentPhotoIndexElement.textContent = photoData.length > 0 ? currentPhotoIndex + 1 : 0;
+    }
+    
+    if (totalPhotosElement) {
+        totalPhotosElement.textContent = photoData.length;
     }
 }
 
@@ -213,7 +325,10 @@ function updateCarousel() {
 
 function editCurrentPhoto() {
     // Если нет фотографий, нечего редактировать
-    if (photoData.length === 0) return;
+    if (photoData.length === 0) {
+        showNotification('Нет фотографий для редактирования', 'warning');
+        return;
+    }
     
     // Открываем диалог выбора файла
     document.getElementById('edit-photo-input').click();
@@ -230,7 +345,11 @@ function uploadEditedPhoto() {
         if (photoId) {
             // Отправляем запрос на редактирование фото
             editPhoto(photoId, file);
+        } else {
+            showNotification('Ошибка: не удалось определить ID фотографии', 'error');
         }
+    } else {
+        showNotification('Выберите файл для замены', 'warning');
     }
     
     // Сбрасываем input
@@ -246,78 +365,18 @@ function getCurrentPhotoId() {
     return null;
 }
 
-async function editPhoto(photoId, file) {
-    const formData = new FormData();
-    formData.append('file', file); // Добавляем файл в FormData
-
-    try {
-        const response = await fetch(`/edit_photo/${photoId}`, {
-            method: 'PUT',
-            body: formData, // Отправляем FormData
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            console.log(result.message); // Успешное обновление
-            // Обновляем фото в карусели
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                // Преобразуем файл в base64
-                const base64String = e.target.result.split(',')[1];
-                // Обновляем фото в массиве
-                photoData[currentPhotoIndex].data = base64String;
-                // Обновляем изображение в карусели
-                const img = document.querySelector(`.photo-container img[data-index="${currentPhotoIndex}"]`);
-                if (img) {
-                    img.src = `data:image/jpeg;base64,${base64String}`;
-                }
-            };
-            reader.readAsDataURL(file);
-        } else {
-            console.error(`Ошибка: ${result.message}`); // Ошибка
-        }
-    } catch (error) {
-        console.error('Ошибка при редактировании фото:', error);
-    }
-}
-
-function addNewPhoto() {
-    const fileInput = document.getElementById('add-photo-input');
-    const file = fileInput.files[0];
-    
-    if (file && currentDetailId) {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('detail_id', currentDetailId);
-        
-        fetch('/add_photo', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Ошибка при загрузке файла');
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Успешно загружено:', data);
-            // Обновляем список фотографий
-            fetchPhoto(currentDetailId);
-        })
-        .catch(error => {
-            console.error('Ошибка:', error);
-        });
-    }
-    
-    // Сбрасываем input
-    fileInput.value = '';
-}
-
 function deleteCurrentPhoto() {
     // Если нет фотографий, нечего удалять
-    if (photoData.length === 0) return;
+    if (photoData.length === 0) {
+        showNotification('Нет фотографий для удаления', 'warning');
+        return;
+    }
+    
+    // Проверяем, не является ли это последней фотографией
+    if (photoData.length === 1) {
+        showNotification('Нельзя удалить последнюю фотографию детали!', 'error');
+        return;
+    }
     
     // Получаем ID текущей фотографии
     const photoId = getCurrentPhotoId();
@@ -341,28 +400,112 @@ async function deletePhoto(photoId) {
         const result = await response.json();
 
         if (response.ok) {
-            console.log(result.message); // Успешное удаление
+            showNotification('Фотография успешно удалена', 'success');
+            
             // Удаляем фото из массива
             photoData.splice(currentPhotoIndex, 1);
             
             // Если удалили последнее фото, закрываем модальное окно
             if (photoData.length === 0) {
                 closePhotoModal();
+                showNotification('Все фотографии удалены', 'info');
             } else {
                 // Иначе обновляем карусель
+                if (currentPhotoIndex >= photoData.length) {
+                    currentPhotoIndex = photoData.length - 1;
+                }
                 openPhotoModal(photoData);
             }
         } else {
-            console.log(`Ошибка: ${result.message}`); // Ошибка
+            showNotification(`Ошибка: ${result.message}`, 'error');
         }
     } catch (error) {
         console.error('Ошибка при удалении фото:', error);
+        showNotification('Произошла ошибка при удалении фотографии', 'error');
     }
 }
 
+async function editPhoto(photoId, file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const response = await fetch(`/edit_photo/${photoId}`, {
+            method: 'PUT',
+            body: formData,
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            showNotification('Фотография успешно обновлена', 'success');
+            
+            // Обновляем фото в карусели
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Преобразуем файл в base64
+                const base64String = e.target.result.split(',')[1];
+                // Обновляем фото в массиве
+                photoData[currentPhotoIndex].data = base64String;
+                // Обновляем изображение в карусели
+                const img = document.querySelector(`.photo-container img[data-index="${currentPhotoIndex}"]`);
+                if (img) {
+                    img.src = `data:image/jpeg;base64,${base64String}`;
+                }
+            };
+            reader.readAsDataURL(file);
+        } else {
+            showNotification(`Ошибка: ${result.message}`, 'error');
+        }
+    } catch (error) {
+        console.error('Ошибка при редактировании фото:', error);
+        showNotification('Произошла ошибка при обновлении фотографии', 'error');
+    }
+}
+
+function addNewPhoto() {
+    const fileInput = document.getElementById('add-photo-input');
+    const file = fileInput.files[0];
+    
+    if (file && currentDetailId) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('detail_id', currentDetailId);
+        
+        fetch('/add_photo', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка при загрузке файла');
+            }
+            return response.json();
+        })
+        .then(data => {
+            showNotification('Фотография успешно добавлена', 'success');
+            // Обновляем список фотографий
+            fetchPhoto(currentDetailId);
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            showNotification('Произошла ошибка при добавлении фотографии', 'error');
+        });
+    } else {
+        showNotification('Выберите файл для загрузки', 'warning');
+    }
+    
+    // Сбрасываем input
+    fileInput.value = '';
+}
+
 function closePhotoModal() {
-    const modal = document.getElementById('photoModal');
-    modal.style.display = "none"; // Скрываем модальное окно
+    if (!photoModal) {
+        console.error('Модальное окно с фотографиями не найдено');
+        return;
+    }
+    
+    photoModal.style.display = "none";
 }
 
 function showNotification(message, type = 'success', duration = 3000) {

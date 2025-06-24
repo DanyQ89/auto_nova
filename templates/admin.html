@@ -1,18 +1,10 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Управление деталями</title>
-    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="../static/css/admin.css">
+{% extends "base.html" %}
 
-    {% extends "base.html" %}
-</head>
-
-
-<body>
+{% block styles %}
+<link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
 
 {% block content %}
 <div id="menu" class="menu">
@@ -181,8 +173,12 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="photo">Фото:</label>
-                    <input type="file" name="photo" id="photo" accept="image/*">
+                    <label for="photos">Фотографии:</label>
+                    <input type="file" name="photos" id="photos" accept="image/*" multiple>
+                    <div class="file-info" id="file-info" style="display: none;">
+                        <p>Выбрано файлов: <span id="file-count">0</span></p>
+                        <div id="file-list"></div>
+                    </div>
                 </div>
             </div>
 
@@ -190,6 +186,9 @@
         </form>
     </div>
 </div>
+
+<!-- Контейнер для уведомлений -->
+<div id="notification-container" class="notification-container"></div>
 
 <div id="photoModal" class="modal">
     <div class="modal-content photo-modal-content">
@@ -226,7 +225,6 @@
     </div>
 </div>
 
-<script src="./static/js/scripts.js"></script>
 <script>
 function confirmDeleteDetail(detailId, detailName) {
     if (confirm(`Вы точно хотите удалить деталь "${detailName}"?\n\nЭто действие нельзя отменить!`)) {
@@ -259,6 +257,3 @@ function deleteDetail(detailId) {
 </script>
 
 {% endblock %}
-
-</body>
-</html>
