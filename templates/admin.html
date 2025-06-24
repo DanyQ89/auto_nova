@@ -38,7 +38,6 @@
             <th>Оригинальный номер</th> <!-- Новый столбец -->
             <th>Процент</th> <!-- Новый столбец -->
             <th>Фото</th> <!-- Новый столбец -->
-            <th>Добавить фото</th>
             <th>Действия</th>
         </tr>
         </thead>
@@ -66,10 +65,6 @@
                 {% else %}
                 Нет фото
                 {% endif %}
-            </td>
-            <td>
-                <button class="add-photo-button" onclick="document.getElementById('file-input-{{ detail.id }}').click()">Добавить фото</button>
-                <input type="file" id="file-input-{{ detail.id }}" style="display:none;" onchange="uploadPhoto('{{ detail.id }}')">
             </td>
             <td>
                 <button class="delete-button" onclick="confirmDeleteDetail({{ detail.id }}, '{{ detail.name }}')">
@@ -208,9 +203,9 @@
                 <button class="photo-action-button edit-photo" onclick="editCurrentPhoto()">
                     <i class="fas fa-edit"></i> Редактировать
                 </button>
-                <button class="photo-action-button add-photo" onclick="document.getElementById('add-photo-input').click()">
-                    <i class="fas fa-plus"></i> Добавить фото
-                </button>
+<!--                <button class="photo-action-button add-photo" onclick="document.getElementById('add-photo-input').click()">-->
+<!--                    <i class="fas fa-plus"></i> Добавить фото-->
+<!--                </button>-->
                 <button class="photo-action-button delete-photo" onclick="deleteCurrentPhoto()">
                     <i class="fas fa-trash"></i> Удалить
                 </button>

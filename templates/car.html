@@ -4,7 +4,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../static/css/car.css">
     {% extends "base.html" %}
-
 </head>
 
 {% block content %}
@@ -38,31 +37,31 @@
 
 <div class="product-container">
     {% for product in products %}
-<div class="product-card">
-    <div class="image-container">
-        {% if product.encoded_photos %}
-        <div class="slider-container">
-            <button class="slider-arrow left-arrow" onclick="changePhoto(-1, {{ loop.index0 }}); event.stopPropagation()">
-                &#10094;
-            </button>
-            <div class="slider">
-                {% for photo in product.encoded_photos %}
-                <div class="slide-wrapper">
-                    <img src="data:image/jpg;base64,{{ photo }}"
-                         alt="{{ product.name }}"
-                         class="slider-photo"
-                         onclick="getDetail('{{ product.ID_detail }}', event)">
+    <div class="product-card">
+        <div class="image-container">
+            {% if product.encoded_photos %}
+            <div class="slider-container">
+                <button class="slider-arrow left-arrow" onclick="changePhoto(-1, {{ loop.index0 }}); event.stopPropagation()">
+                    &#10094;
+                </button>
+                <div class="slider">
+                    {% for photo in product.encoded_photos %}
+                    <div class="slide-wrapper">
+                        <img src="data:image/jpg;base64,{{ photo }}"
+                             alt="{{ product.name }}"
+                             class="slider-photo"
+                             onclick="getDetail('{{ product.ID_detail }}', event)">
+                    </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
+                <button class="slider-arrow right-arrow" onclick="changePhoto(1, {{ loop.index0 }}); event.stopPropagation()">
+                    &#10095;
+                </button>
             </div>
-            <button class="slider-arrow right-arrow" onclick="changePhoto(1, {{ loop.index0 }}); event.stopPropagation()">
-                &#10095;
-            </button>
+            {% else %}
+            <p class="no-image">Изображение недоступно</p>
+            {% endif %}
         </div>
-        {% else %}
-        <p class="no-image">Изображение недоступно</p>
-        {% endif %}
-    </div>
 
         <div class="product-info">
             <h2 class="product-title">{{ product.name }}</h2>
@@ -92,10 +91,6 @@
         <div class="modal-details"></div>
     </div>
 </div>
-
-
-
-
 
 <script src="../../static/js/car.js"></script>
 

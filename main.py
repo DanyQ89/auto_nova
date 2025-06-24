@@ -372,6 +372,11 @@ def get_detail(part_number):
         first_photo = detail.photos[0].photo if detail.photos else None
         photo_data = base64.b64encode(first_photo).decode('utf-8') if first_photo else 0
 
+        # Получаем все фотографии
+        all_photos = []
+        if detail.photos:
+            all_photos = [base64.b64encode(photo.photo).decode('utf-8') for photo in detail.photos if photo.photo]
+
         session.close()
         return jsonify({
             'id': detail.id,
@@ -386,6 +391,7 @@ def get_detail(part_number):
             'color': detail.color,
             'comment': detail.comment,
             'photo': photo_data,  # Возвращаем закодированное изображение или 0
+            'photos': all_photos,  # Возвращаем все фотографии
             'detail_in_basket': detail_in_basket
         })
 
@@ -1040,4 +1046,4 @@ if __name__ == '__main__':
     locale.setlocale(locale.LC_ALL, '')  # Устанавливаем локаль по умолчанию
 
     app.register_error_handler(404, not_found_error)
-    app.run(port=8888, host='127.0.0.1')
+    app.run(port=8888, host='127.0.0.1', debug=True)
