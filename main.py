@@ -1027,4 +1027,5 @@ if __name__ == '__main__':
     locale.setlocale(locale.LC_ALL, '')  # Устанавливаем локаль по умолчанию
 
     app.register_error_handler(404, not_found_error)
-    app.run(port=8888, host='127.0.0.1', debug=True)
+    # app.run(port=8888, host='127.0.0.1', debug=True)
+    app.run()
