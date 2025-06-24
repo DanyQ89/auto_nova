@@ -38,7 +38,6 @@ login_manager.init_app(app)
 
 @app.route("/", methods=["GET", "POST"])
 def main_page():
-    print(current_user.__dict__)
     return render_template("index.html")
 
 
@@ -131,7 +130,6 @@ def delete_photo(photo_id):
 
 @app.route('/add_photo', methods=['POST'])
 def add_photo():
-    print("catch add photo", request.form.get('detail_id'))
     detail_id = request.form.get('detail_id')
     
     if not detail_id:
@@ -169,7 +167,6 @@ def add_photo():
 @app.route('/update_detail/<int:detail_id>', methods=['GET'])
 def update_detail(detail_id):
     session = create_session()
-    print("update detail with ID:", detail_id)
     detail = session.query(Detail).filter(Detail.id == detail_id).first()
     if detail:
         response = jsonify({
@@ -198,7 +195,6 @@ def update_detail(detail_id):
 @app.route('/add_detail', methods=['POST'])
 async def add_detail():
     session = create_session()
-    print(request.form)
     if request.form['id'] == '':
         new_detail = Detail(
             creator_id=request.form['creator_id'],
@@ -265,7 +261,6 @@ async def add_detail():
 @login_required
 def remove_from_basket(detail_id):
     session = create_session()
-    print("Removing detail with ID:", detail_id)
     detail = session.query(Detail).filter(Detail.ID_detail == detail_id).first()
     basket = session.query(Basket).filter_by(user_id=current_user.id).first()
     if not basket:
@@ -281,7 +276,6 @@ def remove_from_basket(detail_id):
         session.close()  # Закрываем сессию
         return jsonify({"success": "Деталь удалена из корзины."}), 200
     else:
-        print("Detail not found in basket.")
         session.close()  # Закрываем сессию
         return jsonify({"error": "Деталь не найдена в корзине."}), 404
 
@@ -323,7 +317,6 @@ def basket():
 @login_required
 def add_to_basket(num):
     session = create_session()
-    print("Add catch", num)
     detail = session.query(Detail).filter(Detail.ID_detail == num).first()
     if detail is None:
         session.close()  # Закрываем сессию
@@ -348,7 +341,6 @@ def add_to_basket(num):
         session.commit()
     except Exception as err:
         session.rollback()
-        print("Error during commit:", err)
         session.close()  # Закрываем сессию
         return jsonify({"error": "Что-то пошло не так ."}), 500
 
@@ -487,7 +479,6 @@ async def meow():
 @app.route('/photo/<int:detail_id>', methods=['GET'])
 def get_photo(detail_id):
     session = create_session()
-    print("catch photo", detail_id)
     try:
         detail = session.query(Detail).filter(Detail.id == detail_id).first()
 
@@ -541,7 +532,6 @@ def delete_detail(detail_id):
         
     except Exception as e:
         session.rollback()
-        print(f"Ошибка при удалении детали: {e}")
         return jsonify({'error': 'Произошла ошибка при удалении детали'}), 500
     
     finally:
@@ -639,7 +629,6 @@ def forgot_password():
             
     except Exception as e:
         session.rollback()
-        print(f"Ошибка при восстановлении пароля: {e}")
         return jsonify({'error': 'Произошла ошибка при восстановлении пароля'}), 500
     
     finally:
@@ -709,7 +698,6 @@ def change_password():
             
         except Exception as e:
             session.rollback()
-            print(f"Ошибка при смене пароля: {e}")
             flash('Произошла ошибка при смене пароля', 'error')
             session.close()
     
@@ -845,7 +833,6 @@ def process_order():
         
     except Exception as e:
         session.rollback()
-        print(f"Ошибка при обработке заказа: {e}")
         return jsonify({'error': 'Произошла ошибка при обработке заказа'}), 500
     
     finally:
@@ -863,7 +850,6 @@ def send_password_reset_email(user, new_password):
     try:
         # Проверяем наличие настроек email
         if not app.config.get('MAIL_USERNAME') or app.config['MAIL_USERNAME'] == 'your-email@gmail.com':
-            print("⚠️ Email не настроен - установите переменные окружения MAIL_USERNAME и MAIL_PASSWORD")
             return False
             
         # Формируем HTML содержимое письма
@@ -923,11 +909,9 @@ def send_password_reset_email(user, new_password):
             msg.sender = app.config['MAIL_DEFAULT_SENDER']
             
             mail.send(msg)
-            print(f"✅ Пароль отправлен на {user.email}")
             return True
         
     except Exception as e:
-        print(f"❌ Ошибка при отправке пароля: {e}")
         return False
 
 
@@ -936,7 +920,6 @@ def send_order_email(user, order_details, total_price, total_card_price):
     try:
         # Проверяем наличие настроек email
         if not app.config.get('MAIL_USERNAME') or app.config['MAIL_USERNAME'] == 'your-email@gmail.com':
-            print("⚠️ Email не настроен - установите переменные окружения MAIL_USERNAME и MAIL_PASSWORD")
             return False
             
         # Формируем HTML содержимое письма
@@ -1026,11 +1009,9 @@ def send_order_email(user, order_details, total_price, total_card_price):
             msg.sender = app.config['MAIL_DEFAULT_SENDER']
             
             mail.send(msg)
-            print(f"✅ Email успешно отправлен на {SERGEY_EMAIL}")
             return True
         
     except Exception as e:
-        print(f"❌ Ошибка при отправке email: {e}")
         return False
 
 
