@@ -2,7 +2,16 @@ import io
 import re
 
 
-def get_number(string):
+def get_number(string: str) -> str | bool:
+    """
+    Форматирует номер телефона в стандартный формат +7XXXXXXXXXX.
+    
+    Args:
+        string: Строка с номером телефона в любом формате
+        
+    Returns:
+        Отформатированный номер телефона или False если формат неверный
+    """
     pattern = re.compile(r'\d')
     arr = re.findall(pattern, string)
     if len(arr) < 10:

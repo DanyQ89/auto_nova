@@ -5,21 +5,17 @@ dotenv.load_dotenv()
 # Секретный ключ для Flask
 secret_key = 'your-secret-key-here'
 
-# ==========================================
-# КОНФИГУРАЦИЯ КОНТАКТНЫХ ДАННЫХ СЕРГЕЯ
-# ==========================================
-
-# Основная информация о менеджере
+# Конфигурация контактных данных Сергея
 SERGEY_NAME = 'Сергей Михайлович'
-SERGEY_POSITION = 'Менеджер по продажам'
+SERGEY_POSITION = 'Владелец'
 SERGEY_COMPANY = 'AutoNova'
 
 # Контактные данные для клиентов
 SERGEY_EMAIL = os.getenv('SERGEY_EMAIL', 'sedunovandrey2007@gmail.com')
 SERGEY_PHONE = os.getenv('SERGEY_PHONE', '+7 921 918 4940')
 SERGEY_PHONE_FORMATTED = SERGEY_PHONE.replace(' ', '').replace('(', '').replace(')', '').replace('-', '')
-SERGEY_WHATSAPP = '+79219184940'  # Номер для WhatsApp (без пробелов и скобок)
-SERGEY_TELEGRAM = '@bezrsp'  # Telegram username
+SERGEY_WHATSAPP = '+79219184940'
+SERGEY_TELEGRAM = '@bezrsp'
 
 # Рабочие часы
 SERGEY_WORK_HOURS = 'Пн-Пт: 9:00-18:00, Сб: 10:00-16:00'
@@ -37,7 +33,7 @@ CONTACT_INFO = {
     'phone': SERGEY_PHONE,
     'email': SERGEY_EMAIL,
     'whatsapp': SERGEY_PHONE_FORMATTED,
-    'telegram': SERGEY_TELEGRAM,  # Ник Сергея в Telegram
+    'telegram': SERGEY_TELEGRAM,
     'work_hours': '9:00 - 21:00',
     'response_time': '15 минут',
 }

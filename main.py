@@ -23,7 +23,7 @@ global_init()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secret_key
 
-# Конфигурация для отправки email
+# Конфигурация email
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
@@ -61,19 +61,18 @@ def show_car(car_name):
     session = create_session()
     details = session.query(Detail).filter(Detail.brand.ilike(car_name)).all()
 
-    # Декодируем все изображения в base64
+    # Кодируем изображения в base64 для отображения
     for detail in details:
         if detail.photos:
-            # Получаем все фото и кодируем их в base64
             encoded_photos = []
             for photo in detail.photos:
-                if photo.photo:  # Проверяем, что фото существует
+                if photo.photo:
                     encoded_photos.append(base64.b64encode(photo.photo).decode('utf-8'))
-            detail.encoded_photos = encoded_photos  # Сохраняем список закодированных изображений
+            detail.encoded_photos = encoded_photos
         else:
-            detail.encoded_photos = []  # Если нет фотографий, устанавливаем пустой список
+            detail.encoded_photos = []
 
-    session.close()  # Закрываем сессию
+    session.close()
     return render_template('car.html', products=details)
 
 
@@ -115,7 +114,7 @@ def delete_photo(photo_id):
         session.close()
         return jsonify({'status': 'error', 'message': 'Фото не найдено'}), 404
 
-    # Проверяем, сколько фотографий у детали
+    # Проверяем, не является ли это последней фотографией детали
     detail_photos = session.query(Photo).filter(Photo.detail_id == photo.detail_id).all()
     
     if len(detail_photos) <= 1:
@@ -186,9 +185,9 @@ def update_detail(detail_id):
             'data_created': detail.data_created.strftime('%Y-%m-%d')
         })
 
-        session.close()  # Закрываем сессию
+        session.close()
         return response
-    session.close()  # Закрываем сессию
+    session.close()
     return jsonify({'error': 'Detail not found'}), 404
 
 
@@ -212,10 +211,10 @@ async def add_detail():
             color=request.form.get('color', ''),
         )
 
-        # Обработка загрузки множественных файлов
+        # Обрабатываем загрузку нескольких фотографий
         photos = request.files.getlist('photos')
         for photo in photos:
-            if photo and photo.filename:  # Проверяем, что файл существует и имеет имя
+            if photo and photo.filename:
                 new_photo = Photo(detail=new_detail, photo=photo.read())
                 session.add(new_photo)
 
@@ -224,7 +223,7 @@ async def add_detail():
         session.close()
         return redirect('/admin')
     else:
-        # Обновление существующей детали
+        # Обновляем существующую деталь
         detail_id = request.form['id']
         detail = session.query(Detail).filter(Detail.id == detail_id).first()
         
@@ -242,10 +241,10 @@ async def add_detail():
             detail.percent = request.form.get('percent', 0)
             detail.color = request.form.get('color', '')
             
-            # Обработка загрузки множественных файлов для редактирования
+            # Обрабатываем загрузку нескольких фотографий для редактирования
             photos = request.files.getlist('photos')
             for photo in photos:
-                if photo and photo.filename:  # Проверяем, что файл существует и имеет имя
+                if photo and photo.filename:
                     new_photo = Photo(detail=detail, photo=photo.read())
                     session.add(new_photo)
             
@@ -264,7 +263,7 @@ def remove_from_basket(detail_id):
     detail = session.query(Detail).filter(Detail.ID_detail == detail_id).first()
     basket = session.query(Basket).filter_by(user_id=current_user.id).first()
     if not basket:
-        session.close()  # Закрываем сессию
+        session.close()
         return jsonify({"error": "Корзина не найдена."}), 404
     existing_detail = session.query(basket_details).filter_by(basket_id=basket.id, detail_id=detail.id).first()
     if existing_detail:
@@ -273,10 +272,10 @@ def remove_from_basket(detail_id):
             (basket_details.c.detail_id == detail.id)
         ))
         session.commit()
-        session.close()  # Закрываем сессию
+        session.close()
         return jsonify({"success": "Деталь удалена из корзины."}), 200
     else:
-        session.close()  # Закрываем сессию
+        session.close()
         return jsonify({"error": "Деталь не найдена в корзине."}), 404
 
 
@@ -304,12 +303,12 @@ def basket():
                 except (ValueError, TypeError):
                     pass
 
-        session.close()  # Закрываем сессию
+        session.close()
     return render_template("basket.html", 
                           details=details, 
                           total_price=total_price, 
                           total_card_price=total_card_price,
-                          order_success_message=ORDER_SUCCESS_MESSAGE,  # Изменено с order_success_msg на order_success_message
+                          order_success_message=ORDER_SUCCESS_MESSAGE,
                           contact_info=CONTACT_INFO)
 
 
@@ -319,7 +318,7 @@ def add_to_basket(num):
     session = create_session()
     detail = session.query(Detail).filter(Detail.ID_detail == num).first()
     if detail is None:
-        session.close()  # Закрываем сессию
+        session.close()
         return jsonify({"error": "Деталь не найдена."}), 404
 
     basket = session.query(Basket).filter_by(user_id=current_user.id).first()
@@ -341,10 +340,10 @@ def add_to_basket(num):
         session.commit()
     except Exception as err:
         session.rollback()
-        session.close()  # Закрываем сессию
+        session.close()
         return jsonify({"error": "Что-то пошло не так ."}), 500
 
-    session.close()  # Закрываем сессию
+    session.close()
     return jsonify({"success": "Деталь добавлена в корзину."}), 200
 
 
@@ -382,12 +381,12 @@ def get_detail(part_number):
             'condition': detail.condition,
             'color': detail.color,
             'comment': detail.comment,
-            'photo': photo_data,  # Возвращаем закодированное изображение или 0
-            'photos': all_photos,  # Возвращаем все фотографии
+            'photo': photo_data,
+            'photos': all_photos,
             'detail_in_basket': detail_in_basket
         })
 
-    session.close()  # Закрываем сессию
+    session.close()
     return jsonify({'error': 'Деталь не найдена'}), 404
 
 
@@ -415,7 +414,7 @@ def enter_data():
             session.commit()
             flash('Контактные данные успешно изменены!', 'success')
 
-        session.close()  # Закрываем сессию
+        session.close()
     return render_template('enter_data.html', form=form)
 
 
@@ -450,11 +449,11 @@ def register():
             session.add(new_user)
             session.commit()
             login_user(new_user, remember=True)
-            session.close()  # Закрываем сессию
+            session.close()
             return redirect('/')
 
         else:
-            session.close()  # Закрываем сессию
+            session.close()
             return render_template('register.html',
                                    form=form,
                                    message='Пользователь с таким номером уже зарегистрирован')
@@ -472,7 +471,7 @@ async def meow():
     session = create_session()
     # Используем joinedload для предварительной загрузки фотографий
     details = session.query(Detail).options(joinedload(Detail.photos)).all()
-    session.close()  # Закрываем сессию
+    session.close()
     return render_template('admin.html', details=details)
 
 
@@ -514,7 +513,7 @@ def delete_detail(detail_id):
         if not detail:
             return jsonify({'error': 'Деталь не найдена'}), 404
         
-        # Удаляем связи из всех корзин
+        # Удаляем из всех корзин
         session.execute(
             basket_details.delete().where(basket_details.c.detail_id == detail_id)
         )
@@ -560,10 +559,10 @@ def login():
                     login_user(admin, remember=True)
                 else:
                     login_user(user, remember=True)
-                session.close()  # Закрываем сессию
+                session.close()
                 return redirect('/admin')
             else:
-                session.close()  # Закрываем сессию
+                session.close()
                 return render_template('login.html',
                                        message="Неверный пароль",
                                        form=form)
@@ -571,17 +570,17 @@ def login():
         phone = get_number(form.phone.data)
         user = session.query(User).filter(User.phone == phone).first()
         if not user:
-            session.close()  # Закрываем сессию
+            session.close()
             return render_template('login.html',
                                    message="Пользователь с таким номером не найден",
                                    form=form)
         else:
             if form.password.data == user.password:
                 login_user(user, remember=True)
-                session.close()  # Закрываем сессию
+                session.close()
                 return redirect('/')
             else:
-                session.close()  # Закрываем сессию
+                session.close()
                 return render_template('login.html',
                                        message='Неверно введён пароль пользователя',
                                        form=form)
@@ -638,7 +637,7 @@ def forgot_password():
 @app.route("/edit_profile", methods=["GET", "POST"])
 def edit_profile():
     session = create_session()
-    user = session.get(User, current_user.id)  # Используем новый метод Session.get()
+    user = session.get(User, current_user.id)
     form = RegisterUser(obj=user)
     if form.validate_on_submit():
         user.name = form.name.data
@@ -646,10 +645,10 @@ def edit_profile():
         user.address = form.address.data
         user.password = form.password.data
         session.commit()
-        session.close()  # Закрываем сессию
+        session.close()
         return redirect('/')
 
-    session.close()  # Закрываем сессию
+    session.close()
     return render_template('edit_user.html', form=form)
 
 
@@ -679,7 +678,7 @@ def change_password():
                 session.close()
                 return render_template('change_password.html', form=form)
             
-            # Проверяем наличие латинских букв и цифр
+            # Проверяем наличие букв и цифр
             has_letter = any(c.isalpha() for c in new_password)
             has_digit = any(c.isdigit() for c in new_password)
             
@@ -708,7 +707,7 @@ def change_password():
 def load_user(user_id):
     session = create_session()
     user = session.get(User, user_id)
-    session.close()  # Закрываем сессию
+    session.close()
     return user
 
 
@@ -749,10 +748,10 @@ def process_order():
             else:
                 unavailable_details.append(detail)
         
-        # Если есть недоступные товары, удаляем их из корзины
+        # Удаляем недоступные товары из корзины
         if unavailable_details:
             for unavailable_detail in unavailable_details:
-                # Удаляем связь из корзины
+                # Удаляем из корзины
                 session.execute(
                     basket_details.delete().where(
                         (basket_details.c.basket_id == user_basket.id) &
@@ -848,7 +847,7 @@ def generate_password(length=9):
 def send_password_reset_email(user, new_password):
     """Отправляет новый пароль на email пользователя"""
     try:
-        # Проверяем наличие настроек email
+        # Проверяем настройки email
         if not app.config.get('MAIL_USERNAME') or app.config['MAIL_USERNAME'] == 'your-email@gmail.com':
             return False
             
@@ -904,7 +903,7 @@ def send_password_reset_email(user, new_password):
         with app.app_context():
             msg = Message()
             msg.subject = "🚗 AutoNova: Восстановление пароля"
-            msg.recipients = [user.email]  # Отправляем на email пользователя
+            msg.recipients = [user.email]
             msg.html = html_content
             msg.sender = app.config['MAIL_DEFAULT_SENDER']
             
@@ -918,7 +917,7 @@ def send_password_reset_email(user, new_password):
 def send_order_email(user, order_details, total_price, total_card_price):
     """Отправляет email с информацией о заказе"""
     try:
-        # Проверяем наличие настроек email
+        # Проверяем настройки email
         if not app.config.get('MAIL_USERNAME') or app.config['MAIL_USERNAME'] == 'your-email@gmail.com':
             return False
             
@@ -1000,7 +999,7 @@ def send_order_email(user, order_details, total_price, total_card_price):
         </html>
         """
         
-        # Создаем и отправляем письмо с Flask-Mail 0.10.0
+        # Создаем и отправляем письмо с Flask-Mail
         with app.app_context():
             msg = Message()
             msg.subject = f"🚗 AutoNova: Заказ от {user.name} ({user.phone})"
@@ -1021,11 +1020,9 @@ def not_found_error(_):
 
 
 if __name__ == '__main__':
-    # global_init("./db/data.sqlite")
     import locale
 
     locale.setlocale(locale.LC_ALL, '')  # Устанавливаем локаль по умолчанию
 
     app.register_error_handler(404, not_found_error)
-    # app.run(port=8888, host='127.0.0.1', debug=True)
     app.run()

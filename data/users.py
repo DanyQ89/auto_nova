@@ -14,11 +14,10 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
     phone = Column(String, unique=True)
-    email = Column(String, unique=True)  # email пользователя (уникальный)
-    address = Column(String)  # адрес доставки
+    email = Column(String, unique=True)
+    address = Column(String)
     password = Column(String)
     modified_date = Column(DateTime, default=datetime.datetime.now())
-
 
     # Связь с корзинами
     baskets = relationship("Basket", back_populates="user")
@@ -74,6 +73,6 @@ class Basket(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'baskets'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey('users.id'))  # Связь с пользователем
-    user = relationship("User", back_populates="baskets")  # Связь с классом User
-    details = relationship("Detail", secondary=basket_details, back_populates="baskets")  # Связь с классом Detail
+    user_id = Column(Integer, ForeignKey('users.id'))
+    user = relationship("User", back_populates="baskets")
+    details = relationship("Detail", secondary=basket_details, back_populates="baskets")

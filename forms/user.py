@@ -2,7 +2,9 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField
 from wtforms.validators import DataRequired, Email, Length, EqualTo
 
+
 class RegisterUser(FlaskForm):
+    """Форма регистрации нового пользователя"""
     name = StringField('Имя', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
     phone = StringField('Номер телефона', validators=[DataRequired()])
@@ -12,12 +14,14 @@ class RegisterUser(FlaskForm):
 
 
 class LoginUser(FlaskForm):
+    """Форма входа пользователя"""
     phone = StringField('Номер телефона', validators=[DataRequired()])
     password = StringField('Пароль', validators=[DataRequired()])
     submit = SubmitField('Сохранить')
 
 
 class ChangePasswordForm(FlaskForm):
+    """Форма смены пароля"""
     current_password = PasswordField('Текущий пароль', validators=[DataRequired()])
     new_password = PasswordField('Новый пароль', validators=[
         DataRequired(),
@@ -27,6 +31,5 @@ class ChangePasswordForm(FlaskForm):
         DataRequired(),
         EqualTo('new_password', message='Пароли не совпадают')
     ])
-    # submit = SubmitField('Изменить пароль')
 
 
